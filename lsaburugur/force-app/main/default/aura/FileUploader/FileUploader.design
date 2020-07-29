@@ -1,0 +1,18 @@
+<design:component>
+	<design:attribute name="recordId" 
+                      label="recordId" 
+                      description="String value that determines the Record Id." />
+    <design:attribute name="accept" 
+                      label="accept" 
+                      description="Comma-separated list of file extensions that can be uploaded in the format .ext, such as .pdf, .jpg, or .png" />
+    <design:attribute name="multiple" 
+                      label="multiple" 
+                      description="Specifies whether a user can upload more than one file simultanesouly. This value defaults to false." default="false" />
+	<design:attribute name="fileCount" 
+                      label="fileCount" 
+                      description="Count of uploaded files" />
+    <design:attribute name="filesStringArray" 
+                      label="filesStringArray" 
+                      description="String Array of File Ids" />
+    
+</design:component>

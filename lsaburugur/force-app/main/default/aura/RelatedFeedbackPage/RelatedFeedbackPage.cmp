@@ -1,0 +1,50 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global" controller="FeedbackController">
+	
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="feedback" type="Feedback__c" />
+    <aura:attribute name="userCanLink" type="Boolean" default="false" />
+    <aura:attribute name="linkedFeedbacks" type="Feedback__c[]" />
+    <aura:attribute name="url" type="String"/>
+    <aura:attribute name="pageReference" type="Object"/>
+    <lightning:navigation aura:id="navService"/>
+    <lightning:quickActionAPI aura:id="quickActionAPI" />
+    
+    <article class="slds-card">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <lightning:icon iconName="standard:calibration" size="small" alternativeText="Feedbacks"/>
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <a class="slds-card__header-link slds-truncate">
+							<span>Related Feedback(s)</span>
+						</a>
+                    </h2>
+                </div>
+                <aura:if isTrue = "{!v.userCanLink}">
+                    <div class="slds-no-flex">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.createNewLink}">New</button>
+                    </div>
+                </aura:if>
+            </header>
+        </div>
+        <div class="slds-card__body">
+            <div class="slds-scrollable" style="height:8rem">
+                <ul class="slds-list--vertical slds-has-block-links">
+                    <aura:iteration items="{!v.linkedFeedbacks}" var="feedbacks">
+                        <div class="slds-m-left_medium slds-text-heading_small slds-p-bottom_x-small">
+                            <li class="slds-list__item">
+                                <a data-fbid="{!feedbacks.Id}" onclick="{!c.handleClick}">{!feedbacks.Name}</a>
+                            </li>
+                        </div>
+                    </aura:iteration>
+                </ul>
+            </div>
+        </div>
+        <footer class="slds-card__footer">
+			<!--<a class="slds-card__footer-action" href="javascript:void(0);">View All</a>-->
+		</footer>
+    </article>
+</aura:component>

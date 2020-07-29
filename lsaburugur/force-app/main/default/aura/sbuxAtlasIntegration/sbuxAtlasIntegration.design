@@ -1,0 +1,8 @@
+<design:component>
+	<design:attribute name="recordId" 
+                      label="recordId" 
+                      description="String value that determines the Record Id." />	
+    <design:attribute name="action" 
+                      label="action" 
+                      description="String value that determines the action this component is to take." />	
+</design:component>
