@@ -1,0 +1,16 @@
+<!--
+ - Created by dgajwani on 6/8/20.
+ -->
+
+<apex:component id="SBUX_B2B_BreadcrumbHomeRedirect">
+
+    <script>
+        jQuery(function ($) {
+            CCRZ.pubSub.once('view:breadcrumbView:refresh', function (viewRef) {
+                viewRef.model.attributes.home.href = CCRZ.pagevars.currSiteURL + 's/' + CCRZ.buildQueryString('');
+                viewRef.render();
+            });
+        }); //end jQuery
+    </script>
+
+</apex:component>

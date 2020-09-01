@@ -1,0 +1,191 @@
+<!--
+ - NGO-543 - 'My Delivery Schedule' NavBar Section
+ -->
+<apex:component id="SBUX_B2B_MyDeliverySchedule" allowDML="true" layout="none" controller="SBUX_B2B_MyDeliveryScheduleCtrl">
+    <!-- custom "MyDeliverySchedule" subview -->
+    <script id="SBUX-B2B-MyAccount-DeliverySchedule-Desktop" type="text/template">
+        <div class="panel panel-default cc_panel cc_myaccount_deliverySchedule">
+            <div class="panel-heading cc_heading">
+                <h3 class="panel-title cc_title">{{pageLabelMap 'MyAccount_DeliverySchedule'}}</h3>
+            </div>
+            <div class="panel panel-default cc_panel cc_paginator">
+                <div class="table-responsive">
+                    <table id="deliveryTable" class="table table-striped table-hover cc_table">
+                        <tr class="cc_table_header_row">
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_order_number">{{pageLabelMap 'MyAccount_Distributor'}}</span>
+                            </th>
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_external_order_id">{{pageLabelMap 'MyAccount_ScheduleType'}}</span>
+                            </th>
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_order_type">{{pageLabelMap 'MyAccount_OrderDay'}}</span>
+                            </th>
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_order_name">{{pageLabelMap 'MyAccount_OrderDate'}}</span>
+                            </th>
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_order_status">{{pageLabelMap 'MyAccount_OrderDayCutOffTime'}}</span>
+                            </th>
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_order_date">{{pageLabelMap 'MyAccount_ExpectedDeliveryDay'}}</span>
+                            </th>
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_order_amount">{{pageLabelMap 'MyAccount_ExpectedDeliveryDate'}}</span>
+                            </th>
+                        </tr>
+                        {{#each data}}
+                            <tr class="myAccOrderRows cc_table_row">
+                                <td class="cc_table_col cc_nowrap">
+                                    <span class="cc_col_deliv_name">{{this.dpName}}</span>
+                                </td>
+                                <td class="cc_table_col">
+                                    {{#if this.scheduleType}}
+                                        <span class="cc_col_deliv_type">{{this.scheduleType}}</span>
+                                    {{else}}
+                                        <span class="cc_col_deliv_type">Standard</span>
+                                    {{/if}}
+                                </td>
+                                <td class="cc_table_col">
+                                    <span class="cc_col_deliv_orderDay">{{dayOfWeek this.orderDate}}</span>
+                                </td>
+                                <td class="cc_table_col">
+                                    <span class="cc_col_deliv_orderDate">{{dateString this.orderDate}}</span>
+                                </td>
+                                <td class="cc_table_col">
+                                    <span class="cc_col_deliv_orderCutoff">{{cutoff this.cutoffTimeHours this.cutoffTimeMins this.cutoffTimeZone}}</span>
+                                </td>
+                                <td class="cc_table_col">
+                                    <span class="cc_col_deliv_expDay">{{dayOfWeek this.deliveryDate}}</span>
+                                </td>
+                                <td class="cc_table_col">
+                                    <span class="cc_col_deliv_expDate">{{dateString this.deliveryDate}}</span>
+                                </td>
+                            </tr>
+                        {{/each}}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/javascript">
+        //Date String helper
+        Handlebars.registerHelper("dateString", function(dateNumber){
+            return dateNumber ? (new Date(dateNumber)).toLocaleDateString('en', {timeZone:'UTC'}) : null;
+        });
+        //DayOfWeek helper
+        Handlebars.registerHelper("dayOfWeek", function(dateNumber){
+            return dateNumber ? new Date(dateNumber).toLocaleDateString('en', {timeZone:'UTC',weekday:'long'}) : null;
+        });
+        //cutoff time w/ timezone helper
+        Handlebars.registerHelper("cutoff", function(hour,minute,timezone){
+            if(hour){
+                //format time
+                var ap = 'AM';
+                if (hour   > 11) { ap = "PM";             }
+                if (hour   > 12) { hour = hour - 12;      }
+                if (hour   == 0) { hour = 12;             }
+                if (hour   < 10) { hour   = "0" + hour;   }
+                if (minute < 10) { minute = "0" + minute; }
+
+                //format timezone
+                var timezoneString = '';
+                if (timezone.indexOf('04')>0){      timezoneString = 'EDT'; }
+                else if(timezone.indexOf('05')>0){  timezoneString = 'CDT'; }
+                else if(timezone.indexOf('06')>0){  timezoneString = 'MDT'; }
+                else if(timezone.indexOf('07')>0){  timezoneString = 'PDT'; }
+                else if(timezone.indexOf('08')>0){  timezoneString = 'ADT'; }
+                else if(timezone.indexOf('10')>0){  timezoneString = 'HST'; }
+
+                return hour + ':' + minute + " " + ap + "  " + timezoneString;
+            } else {
+                return null;
+            }
+        });
+
+        // register function for MyAccount subview
+        CCRZ.MyAccount = _.extend(CCRZ.MyAccount||{},{
+            deliverySchedule :{
+                register : function(registrar){
+                    registrar.registerNewView('deliverySchedule', CCRZ.pagevars.pageLabels['MyAccount_DeliverySchedule'], new CCRZ.subsc.views.deliveryScheduleView());
+                }
+            }
+        });
+
+        jQuery(function($) {
+            //on MyAccount load, 
+            CCRZ.pubSub.once("view:myaccountView:refresh", function(myAccountView) {
+
+                //register new NavBar view + re-render
+                if(CCRZ.MyAccount.deliverySchedule){
+                    CCRZ.MyAccount.deliverySchedule.register(myAccountView);
+                }
+                
+                //set gotoDeliverySchedule subview event
+                myAccountView.navView.gotoDeliverySchedule = function(event) {
+                    var objLink = $(event.currentTarget);
+                    var index = objLink.data("index");
+                    CCRZ.myaccountView.gotoSection(index);
+                };
+
+                //delegate events + re-render
+                myAccountView.navView.events['click .gotoDeliverySchedule'] = 'gotoDeliverySchedule';
+                myAccountView.navView.delegateEvents();
+                myAccountView.navView.render();
+            });
+
+            //set 'getDeliveryData' method
+            CCRZ.subsc = _.extend(CCRZ.subsc || {});
+            CCRZ.subsc.getScheduleActions = _.extend({
+                className: 'SBUX_B2B_MyDeliveryScheduleCtrl',
+                getDeliveryData: function (acctId, callback) {
+                    this.invokeCtx(
+                        'getDeliveryData',
+                        acctId,
+                        function (response) {
+                            callback(response);
+                        },
+                        {
+                            buffer: false,
+                            nmsp: false
+                        }
+                    );
+                }
+            }, CCRZ.RemoteInvocation);
+
+
+            CCRZ.subsc.views  = CCRZ.subsc.views || {};
+            CCRZ.subsc.views.deliveryScheduleView = CCRZ.CloudCrazeView.extend({
+                templateName: CCRZ.util.template('SBUX-B2B-MyAccount-DeliverySchedule-Desktop'),
+                className: "SBUX_B2B_MyDeliverySchedule_Ctrl",                                    
+                viewName: "myDeliveryScheduleView",
+                managedSubView: true,
+                init : function() {
+                    // get data
+                    var acctId = CCRZ.myaccountView.model.attributes.accountId;
+                    CCRZ.subsc.getScheduleActions.getDeliveryData(acctId,function(response){
+                        if (response && response.success && response.data) {
+                            //sort response by OrderDate
+                            response.data.sort((a, b) => (a.orderDate > b.orderDate) ? 1 : -1)
+                            //set response data in accessible location
+                            CCRZ.subsc.scheduleData = response.data;
+                        }
+                    });
+                    //render view now that data is available
+                    this.render();
+                },
+                render : function() {
+                    var v = this;
+                    v.$el.html(v.templateName({data : CCRZ.subsc.scheduleData}));
+                }
+            });
+        });
+    </script>
+    <!-- css for shipment-table -->
+    <style>
+        .cc_nowrap {
+            white-space: nowrap;
+        }
+    </style>
+</apex:component>

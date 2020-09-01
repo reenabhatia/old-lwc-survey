@@ -1,0 +1,17 @@
+<!--
+ - Created by dgajwani on 6/3/20.
+ -->
+
+<apex:page id="SBUX_B2B_AllPagesBIB" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false">
+    <c:SBUX_B2B_ReOrder />
+    <c:SBUX_B2B_ReOrderWidgetUI />
+    <c:SBUX_B2B_WIshListWidgetUI />
+    <c:SBUX_B2B_BreadcrumbHomeRedirect />
+    <c:SBUX_B2B_LogoURL />
+    <c:SBUX_B2B_UOMConversion />
+    <script type="text/javascript">
+        CCRZ.uiProperties.ReOrderView.OrderedItemsView.tmpl = "SBUX-ReOrder-IncludedItems";
+        CCRZ.uiProperties.quickWishDetailsView.desktop.tmpl = "SBUX-QuickOrder-WishlistItems-Desktop";
+        CCRZ.uiProperties.ReOrderView.tmpl = "SBUX-B2B-ReOrder";
+    </script>
+</apex:page>

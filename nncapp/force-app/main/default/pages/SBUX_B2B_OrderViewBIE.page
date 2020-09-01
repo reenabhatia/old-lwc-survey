@@ -1,0 +1,16 @@
+<!--
+ - Created 2020-04-16 by alangston
+ - Tickets: NGO-298 - Credit Request
+ - Purpose: adds the "Credit Request" view type to existing "OrderView" page
+            runs validations, adds input fields, adds submitButton + remoteAction
+ -->
+<apex:page id="SBUX_B2B_OrderViewBIE" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false" controller="SBUX_B2B_OrderViewCtrl">
+
+    <c:SBUX_B2B_OrderDetailLLI />
+    <c:SBUX_B2B_OrderItemDetailLLI />
+
+    <script type="text/javascript">
+        CCRZ.uiProperties.OrderDetailLLIView.desktop.tmpl = "SBUX-OrderDetailsLLI-View-Desktop";
+        CCRZ.uiProperties.OrderDetailLLIView.partial.orderItemsLLIDesktop = "#SBUX-OrderItemsLLI-Desktop";
+    </script>
+</apex:page>

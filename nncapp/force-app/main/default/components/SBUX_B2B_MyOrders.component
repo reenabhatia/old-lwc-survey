@@ -1,0 +1,265 @@
+<!-- 
+ - NGO-298 - Credit Request
+ -  adds a "Request Credit" button to the "MyOrders" subsection w/ Qualifying Criteria
+ -->
+
+<apex:component id="SBUX_B2B_MyOrders" allowDML="true" layout="none" controller="SBUX_B2B_MyDeliveryScheduleCtrl">
+    <!--"My Orders" Template Override-->
+    <script id="SBUX-B2B-MyAccount-MyOrders-Desktop" type="text/template">
+        <div class="panel panel-default cc_panel cc_myaccount_myorders">
+            <div class="panel-heading cc_heading">
+                <h3 class="panel-title cc_title">{{pageLabelMap 'MyAccount_MyOrders'}}</h3>
+            </div>
+            <div class="panel-body cc_body cc_myaccount_content">
+                <div class="messagingSection-orderhistory-Error" role="alert" style="display: none"></div>
+                <div class="messagingSection-orderhistory-Info" role="alert" style="display: none">
+                    <button type="button" class="close cc_close" data-dismiss="alert" aria-label="{{pageLabelMap 'Modal_Aria_Close'}}"><span aria-hidden="true">&times;</span></button>
+                </div>
+                {{#ifDisplay 'srch.ord'}}
+                    <form id="searchOrderForm" class="form-inline searchOrderForm cc_search_order_form cc_form-inline">
+                        <div class="form-group form-group-sm ">
+                            <label for="searchOrderInput" class="sr-only">Search order</label>
+                            <input id="searchOrderInput" type="text" class="form-control searchOrderInput input-text cc_search_order_input" name="searchOrderInput" value="{{searchOrder}}" placeholder="{{pageLabelMap 'MyOrdersInc_SearchOrders'}}"/>
+                        </div>
+                        <div class="form-group form-group-sm">
+                            <select name="searchOrderStatus" value="{{searchOrderStatus}}" class="form-control cc_search_order_status">
+                                <option value="">{{pageLabelMap 'MyOrdersInc_AllOrderStatus'}}</option>
+                                {{#each this.orderStatusOpts}}
+                                <option value="{{this.value}}" {{#ifEquals ../searchOrderStatus this.value}} selected {{/ifEquals}}>{{this.label}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="form-group form-group-sm date">
+                            <label for="fromDateStr" class="cc_from_date_str">{{pageLabelMap 'MyOrdersInc_SearchFrom'}}</label>
+                            <div class="input-group date">
+                                <input type="text" id="fromDateStr" name="fromDateStr" value="{{this.fromDateStr}}" class="form-control requestedDate fromDate cc_from_date" readonly="true">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm date">
+                            <label for="toDateStr" class="cc_to_date_str">{{pageLabelMap 'MyOrdersInc_SearchTo'}}</label>
+                            <div class="input-group date">
+                                <input type="text" id="toDateStr" class="form-control requestedDate toDate cc_to_date" name="toDateStr" value="{{this.toDateStr}}" readonly="true">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="cc_order_search_action">
+                        <input type="button" class="btn btn-default btn-sm searchOrder cc_search_order" value="{{pageLabelMap 'MyOrdersButton_SearchOrders'}}"/>
+                        <input type="button" class="btn btn-default btn-sm resetOrder cc_reset_order" value="{{pageLabelMap 'MyOrdersButton_ResetOrders'}}"/>
+                    </div>
+                {{/ifDisplay}}
+            </div>
+        </div>
+        <div class="orderPaginationSec" />
+        <div class="messagingSection-orderhistory-qualification" id="messagingSection-orderhistory-qualification" role="alert" style="display: none"></div>
+        <div class="panel panel-default cc_panel cc_paginator">
+            <div class="table-responsive">
+                <table id="orderTable" class="table table-striped table-hover shopping_cart cc_table cc_order_search_table">
+                    <tr class="cc_table_header_row">
+                        <th class="cc_table_header">
+                            <span class="cc_table_header_order_number">{{pageLabelMap 'MyOrdersInc_OrderNumber'}}</span>
+                        </th>
+                        {{#ifDisplay 'MO.DsplExtOrderNumber'}}
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_external_order_id">{{pageLabelMap 'MyOrdersInc_OracleNumber'}}</span>
+                            </th>
+                        {{/ifDisplay}}
+                        <th class="cc_table_header">
+                            <span class="cc_table_header_order_type">{{pageLabelMap 'MyOrdersInc_OrderType'}}</span>
+                        </th>
+                        <th class="cc_table_header">
+                            <span class="cc_table_header_order_name">{{pageLabelMap 'MyOrdersInc_OrderName'}}</span>
+                        </th>
+                        <th class="cc_table_header">
+                            <span class="cc_table_header_order_status">{{pageLabelMap 'MyOrdersInc_Status'}}</span>
+                        </th>
+                        <th class="cc_table_header">
+                            <!--requestDate == DeliveryDate -->
+                            <span class="cc_table_header_order_date">{{pageLabelMap 'MyOrdersInc_RequestDate'}}</span>
+                        </th>
+                        <th class="cc_table_header">
+                            <span class="cc_table_header_order_amount">{{pageLabelMap 'MyOrdersInc_OrderAmount'}}</span>
+                        </th>
+                        <th class="cc_table_header">
+                            <span class="cc_table_header_order_type">{{pageLabelMap 'MyOrdersInc_Invoice'}}</span>
+                        </th>
+                        {{#ifDisplay 'MO.ShActOnOrd'}}
+                            <th class="cc_table_header">
+                                <span class="cc_table_header_order_actions">{{pageLabelMap 'MyCartsInc_Actions'}}</span>
+                            </th>
+                            <th class="cc_table_header"></th>
+                            <th class="cc_table_header"></th>
+                            <th class="cc_table_header"></th>
+                        {{/ifDisplay}}
+                    </tr>
+                    {{#each this.orderList}}
+                        <tr class="myAccOrderRows cc_table_row">
+                            <td class="cc_table_col">
+                                <span class="cc_col_order_number"><a href="#" data-id="{{encryptedId}}" class="gotoOrderDetails cc_goto_order_detailss">{{name}}</a></span>
+                            </td>
+                            {{#ifDisplay 'MO.DsplExtOrderNumber'}}
+                                <td class="cc_table_col">
+                                    <span class="cc_col_external_order_id">{{externalOrderId}}</span>
+                                </td>
+                            {{/ifDisplay}}
+                            {{#ifDisplay 'MO.DsplPONumber'}}
+                                <td class="cc_table_col">
+                                    <span class="cc_col_po_number">{{poNumber}}</span>
+                                </td>
+                            {{/ifDisplay}}
+                            <td class="cc_table_col">
+                                <span class="cc_col_order_type">{{SBUXB2BOrderType}}</span>
+                            </td>
+                            <td class="cc_table_col">
+                                <span class="cc_col_order_name">{{friendlyName EOrderItemGroupsS.[0].groupName}}</span>
+                            </td>
+                            <td class="cc_table_col">
+                                <span class="cc_col_order_statust">{{pageLabelMap status}}</span>
+                            </td>
+                            <td class="cc_table_col">
+                                <!--requestDate == DeliveryDate -->
+                                <span class="cc_col_order_date">{{requestDate}}</span>
+                            </td>
+                            <td class="cc_table_col">
+                                <span class="cc_col_order_amount">{{price totalAmount currencyIsoCode}}</span>
+                            </td>
+                            <td class="cc_table_col">
+                                {{#if invoiceBase64}}
+                                    <a href="data:application/pdf;content-disposition:attachment;base64,{{this.invoiceBase64}}" download="{{pageLabelMap 'MyOrdersInc_InvoiceDownloadName' this.externalOrderId}}">
+                                        <span class="cc_col_order_type">{{pageLabelMap 'MyOrdersInc_InvoiceLink'}}</span>
+                                    </a>
+                                {{/if}}
+                            </td>
+                            {{#ifDisplay 'MO.ShActOnOrd'}}
+                                <td class="cc_table_col">
+                                    {{#ifDisplay 'MO.ShReOrdBt'}}
+                                        {{#if this.canReOrder}}
+                                            <input type="button" class="btn btn-default btn-sm validate-reorder cc_col_reorder" data-id="{{sfid}}" value="{{pageLabelMap 'MyOrdersInc_Reorder'}}"/>&nbsp;
+                                        {{/if}}
+                                    {{/ifDisplay}}
+                                </td>
+                                <!--custom CreditRequest button-->
+                            {{#ifDisplay 'MO.shwcreditreq'}}
+                                <td class="cc_table_col">
+                                    <input type="button" class="btn btn-default btn-sm creditReq cc_col_credit" data-id="{{sfid}}" value="{{pageLabelMap 'MyOrdersInc_CreditRequest'}}"/>&nbsp;
+                                </td>
+                            {{/ifDisplay}}
+                                <td class="cc_table_col">
+                                    {{#if this.canCancel}}
+                                        {{#ifDisplay 'MO.ShAmdBt'}}
+                                            {{#if this.canAmend}}
+                                                <input type="button" class="btn btn-default btn-sm promptCancel promptAmend cc_col_prompt_amend" data-id="{{sfid}}" data-mode="Edit" value="{{pageLabelMap 'Amend'}}"/>&nbsp;
+                                            {{/if}}
+                                        {{/ifDisplay}}
+                                    {{/if}}
+                                </td>
+                                <td class="cc_table_col">
+                                    {{#if this.canCancel}}
+                                        {{#ifDisplay 'MO.ShCanBt'}}
+                                            <input type="button" class="btn btn-default btn-sm promptCancel cc_col_prompt_cancel" data-id="{{sfid}}" data-mode="Cancel" value="{{pageLabelMap 'Cancel'}}"/>
+                                        {{/ifDisplay}}
+                                    {{/if}}
+                                </td>
+                            {{/ifDisplay}}
+                        </tr>
+                    {{/each}}
+                </table>
+            </div>
+            <div id="modalSec"></div>
+        </div>
+    </script>
+    <!--END "My Orders" Template-->
+    
+    <!--MyOrdersView pubSub-->
+    <script type="text/javascript">
+        jQuery(function($) {
+            CCRZ.pubSub.once("view:myOrdersView:refresh", function(myOrdersView) {
+
+                //Credit Request Qualification logic
+                myOrdersView.gotoCreditReq = function(event) {
+                    //get order
+                    var objLink = $(event.target);
+                    var orderId = objLink.data("id");
+                    var thisOrder = this.dataModel.models.find(function(order){return order.id === orderId});
+
+                    //set qualified flag
+                    var canRMA = true;
+
+                    //check RequestDate qualified (orderDateStr)
+                    //      Timer starts at 12:01am day of DeliveryDate [requestDate], and counts for 1+X days
+                    var dateQualRange = 1 + parseInt(CCRZ.pagevars.pageLabels['MyOrdersInc_CreditQualDate_Range'],10);
+                    var currentDate = new Date();
+                    var Difference_In_Days = (currentDate.getTime() - thisOrder.attributes.requestDateVal) / (1000 * 3600 * 24);
+                    if(Difference_In_Days >= dateQualRange || _.isUndefined(thisOrder.attributes.requestDate)){
+                        canRMA = this.throwLineError('MyOrdersInc_CreditQualDate');
+                    }
+
+                    //check OrderStatus qualified (Status)
+                    if(_.isUndefined(thisOrder.attributes.status) || thisOrder.attributes.status != CCRZ.pagevars.pageLabels['MyOrdersInc_OrderStatusValid']){
+                        canRMA = this.throwLineError('MyOrdersInc_CreditQualStatus');
+                    }
+
+                    //check OrderType qualified (SBUXB2BOrderType)
+                    if(!_.isUndefined(thisOrder.attributes.SBUXB2BOrderType) && 
+                            (thisOrder.attributes.SBUXB2BOrderType.indexOf(CCRZ.pagevars.pageLabels['MyOrdersInc_OrderTypeValid_Std']) >= 0
+                            || thisOrder.attributes.SBUXB2BOrderType.indexOf(CCRZ.pagevars.pageLabels['MyOrdersInc_OrderTypeValid_Promo']) >= 0)){
+                        //order status contains a valid Status Keyword, continue
+                    } else {
+                        //valid status keyword not found, throw error
+                        canRMA = this.throwLineError('MyOrdersInc_CreditQualType');
+                    }
+
+                    //if qualified, launch RMA page
+                    if(canRMA)
+                    {
+                        window.location = "ccrz__OrderView?o=" + thisOrder.attributes.encryptedId + getCSRQueryString() + '&credReq=true';
+                    }
+                };
+
+                //ReOrder button: run custom Validations first, then run OOTB reorder method
+                myOrdersView.validateReorder = function(event) {
+                    var objLink = $(event.target);
+                    var orderId = objLink.data("id");
+
+                    //check if qualified (SBUXB2BOrderType contains ['Standard'])
+                    var thisOrder = this.dataModel.models.find(function(order){return order.id === orderId});
+                    if(!_.isUndefined(thisOrder.attributes.SBUXB2BOrderType) && thisOrder.attributes.SBUXB2BOrderType.indexOf(CCRZ.pagevars.pageLabels['MyOrdersInc_OrderTypeValid_Std']) >= 0){
+                        //continue with OOTB Reorder process
+                        this.orderList.reorder(orderId, function(newCartId){
+                            cartDetails(newCartId);
+                        });
+                    } else {
+                        //valid status keyword not found, throw error
+                        this.throwLineError('MyOrdersInc_ReorderQualType');
+                    }
+                    
+                };
+                
+                //error handler
+                myOrdersView.throwLineError = function(errorMsgPageLabel){
+                    CCRZ.pubSub.trigger("pageMessage", CCRZ.createPageMessage('ERROR', "messagingSection-orderhistory-qualification", errorMsgPageLabel));
+                    $("body,html").animate({scrollTop: $(".messagingSection-orderhistory-qualification").offset().top}, 500);
+                    return false;
+                };
+                
+                //set:delegate events
+                myOrdersView.events['click .creditReq'] = 'gotoCreditReq';
+                myOrdersView.events['click .validate-reorder'] = 'validateReorder';
+                myOrdersView.delegateEvents();
+            });
+        });
+    </script>
+
+    <!-- HandlebarHelpers -->
+    <script>
+        Handlebars.registerHelper("friendlyName", function(orderName){
+            return orderName ? orderName.replace(/_/g, ' ') : null;
+        });
+    </script>
+
+</apex:component>

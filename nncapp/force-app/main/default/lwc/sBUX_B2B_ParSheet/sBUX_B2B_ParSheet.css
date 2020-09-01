@@ -1,0 +1,60 @@
+.tableHeight{
+    height: 450px;
+  }
+
+  .printTableHeight{
+    height: none;
+  }
+
+  /********************
+    Loader/ Overlay
+********************/
+
+
+
+.sb-loader 
+{
+    background-color: #f2f0eb!important;
+    filter: alpha(opacity=70);
+    opacity: .7;
+}
+
+
+.sb-loadingCoffeeCup {
+  height: 200px;
+  width: 200px;
+  filter: alpha(opacity=70);
+  opacity: .7;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  position: absolute;
+  top: 35%;
+  bottom: 50%;
+  left: 45%;
+  right: 50%;
+}
+
+.sb-loadingCoffeeSteam {
+  opacity: 0.4;
+  stroke-dasharray: 25;
+  -webkit-animation: dash 2.4s infinite linear;
+          animation: dash 2.4s infinite linear;
+}
+
+@-webkit-keyframes dash {
+    from {
+        stroke-dashoffset: 25;
+    }
+    to {
+        stroke-dashoffset: -25;
+    }
+}
+@keyframes dash {
+    from {
+        stroke-dashoffset: 25;
+    }
+    to {
+      stroke-dashoffset: -25;
+    }
+}

@@ -1,0 +1,17 @@
+<!--
+ - Created by dgajwani on 4/29/20.
+ -->
+
+<apex:page id="SBUX_B2B_CheckoutBIE" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false">
+    <c:SBUX_B2B_CartItemGroupsRemoveButtons />
+    <c:SBUX_B2B_OrderViewStep />
+    <c:SBUX_B2B_HidePaymentStep />
+    <script type="text/javascript">
+        CCRZ.uiProperties.LLIShippingDetailView.desktop.tmpl = "SBUX-Shipping-Detail-LLI-Desktop";
+        CCRZ.uiProperties.LLIShippingDetailView.partial.cartItemsDesktop = '#SBUX-CartItemDetail-View-Desktop';
+        CCRZ.uiProperties.LLIShippingDetailView.partial.cartSummaryWidget = '#SBUX-CartSummaryWidget-Desktop';
+        CCRZ.uiProperties.LLIOrderReviewView.desktop.tmpl = "SBUX-Order-Review-LLI-Desktop";
+        CCRZ.uiProperties.LLIOrderReviewView.partial.cartItemDetailsReview = '#SBUX-CartItemReview-View-Desktop';
+        CCRZ.uiProperties.LLIOrderReviewView.partial.cartReviewSummary = '#SBUX-CartReviewSummary-Desktop';
+    </script>
+</apex:page>

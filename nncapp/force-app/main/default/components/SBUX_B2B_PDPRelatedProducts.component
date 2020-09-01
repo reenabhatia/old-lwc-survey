@@ -1,0 +1,84 @@
+<!--
+ - Created by dgajwani on 5/13/20.
+ -->
+
+<apex:component id="SBUX_B2B_PDPRelatedProducts">
+    <script id="SBUX-ProductDetail-ProductsSection-Desktop" type="text/template">
+        <!-- NOTE: this is really a tab section for addons or other products NOT wishlist related -->
+        <div class="quick_wishlist cc_quick_wishlist cc_addon_tab">
+            <div class="row">
+                {{#each this.pageData}}
+                <div class="{{#ifEquals ../pageData.length 1}}col-xs-12{{else}}{{#ifEquals ../pageData.length 2}}col-xs-6{{else}}{{#ifEquals ../pageData.length 3}}col-xs-4{{else}}col-xs-3{{/ifEquals}}{{/ifEquals}}{{/ifEquals}}">
+                    <div class="row">
+                        <div class="quick_wishlist_item col-md-12 cc_quick_wishlist_item">
+                            <div class="cc_cart_item">
+                                {{#if this.mediaWrapper}}
+                                    {{productLink this.prodBean 'cc_cart_item' image=(displayImage this.mediaWrapper 'prodDetRel img-responsive' alt=this.prodBean.name dataId=this.prodBean.sku)}}
+                                {{else}}
+                                    <div class="noimagefound"></div>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="cc_prod_sku">
+                                {{productLink this.prodBean 'productName cc_data_link'}}<br>
+                                <span class="cc_sku_label">{{pageLabelMap 'ProductDetailsInc_SKU'}}</span>&nbsp;
+                                <span class="cc_sku_value">{{this.prodBean.sku}}</span>
+                            </div>
+                            <div class="cc_prod_upc">
+                                <span class="cc_upc_label">{{pageLabelMap 'ProductDetailsInc_UPC'}}</span>
+                                <span class="cc_upc_value">{{this.prodBean.SBUXB2BUPC}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div>
+                                <input type="hidden" name="qtyIncrement" value="{{this.qtySingleIncrement}}" class="item_qtyIncrement" />
+                                <input type="hidden" name="qtySkipIncrement" value="{{this.qtySkipIncrement}}" class="item_qtySkipIncrement" />
+                                {{#ifDisplay 'PD.DsplPrc' }}
+                                {{#if this.prodBean.primaryAttr}}
+                                <span class="cc_attr_message">{{pageLabelMap 'ProductAttributes_PriceMessage'}}</span>
+                                {{else}}
+                                {{#if this.showNewSubscriptionSelection}}
+                                <p class="price priceSubscription cc_price_subscription">
+                                    <strong>{{pageLabelMap 'Prod_SubsAlternatePrice' (price this.price) (price this.minSubPrice) (price this.maxSubPrice)}}</strong>
+                                </p>
+                                {{else}}
+                                {{#if this.displayPrice}}
+                                <p class="price displayPrice cc_display_price">
+                                    {{pageLabelPrefixMap 'DisplayPrice_' this.displayPrice}}
+                                </p>
+                                {{else}}
+                                {{#if this.showPricing}}
+                                {{#if this.price}}
+                                <div class="cc_pricing">
+                                    <p class="price cc_price">{{price this.price}}</p>
+                                </div>
+                                {{/if}}
+                                {{/if}}
+                                {{/if}}
+                                {{#if this.isTierPriced}}
+                                <div class="cc_prt_tool_tip_div cc_prt_tool_tip_div_pdp">
+															<span class="cc_prt_tool_tip_text cc_prt_tool_tip_text_pdp" data-toggle="tooltip" title="{{pageLabelMap 'ProductPricingTiers_VolumeHover'}}">
+																{{pageLabelMap 'ProductPricingTiers_VolumePricing'}}
+															</span>
+                                </div>
+                                {{/if}}
+                                {{/if}}
+                                {{/if}}
+                                {{/ifDisplay}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{#pdp-ifRowFull @index}}
+                <div class="clearfix"></div>
+                {{/pdp-ifRowFull}}
+                {{/each}}
+            </div>
+        </div>
+    </script>
+</apex:component>

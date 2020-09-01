@@ -1,0 +1,15 @@
+<template>
+    <template if:true={showComp}>
+        <lightning-card title='Recommended Actions' icon-name="custom:custom42">
+            <template for:each={resultData} for:item="res">
+                <!--<lightning-card key={res.name}> -->
+                <lightning-checkbox-group key={res.name} data-id="checkbox" class="slds-p-left_medium disableCheckBox"
+                    name={res.name} label={res.name} options={res.items} value={values} onchange={handleChange}>
+                </lightning-checkbox-group>
+                <!--</lightning-card> -->
+            </template>
+        </lightning-card>
+    </template>
+    <!--<lightning-button class="slds-m-top_small" variant="brand" onclick={handleMessage} name="Click" label="Click">
+    </lightning-button> -->
+</template>

@@ -1,0 +1,409 @@
+<!--
+ - Created by dgajwani on 5/5/20.
+ -->
+
+<apex:component id="SBUX_B2B_OrderDetailLLI" controller="SBUX_B2B_OrderViewCtrl">
+    <script id="SBUX-OrderDetailsLLI-View-Desktop" type="text/template">
+        <div class="cc_lliorder_details">
+            {{#if this.isConfirmation}}
+            {{#with this.orderData}}
+            <div class="panel panel-default cc_panel cc_orderlli_confirmation">
+                <div class="panel-heading cc_heading">
+                    <h3 class="panel-title cc_title">{{pageLabelMap 'OrderConfirmation_Title'}}</h3>
+                </div>
+                <div class="panel-body cc_panel-body">
+                    <p class="cc_order_confirmation_date">
+                        {{pageLabelMap 'OrderConfirmation_PlacedOrder' this.orderDate}}
+                    </p>
+                    <p class="cc_order_confirmation_status">
+                        <span class="cc_order_status_info">{{pageLabelMap 'OrderConfirmation_StatusInfo'}}&nbsp;</span>
+                        <span class="cc_order_history"><a href="#" class="orderHistory cc_order_history">{{pageLabelMap 'OrderConfirmation_OrderHistory'}}</a>.</span>
+                    </p>
+                    <p class="cc_order_confirmation_guidingtext1">
+                        {{pageLabelMap 'OrderConfirmation_GuidingText'}}
+                    </p>
+                    <p class="cc_order_confirmation_guidingtext2">
+                        {{pageLabelMap 'OrderConfirmation_GuidingText2'}}
+                    </p>
+                </div>
+            </div>
+            {{/with}}
+            {{else}}
+            {{#with this.orderData}}
+            <div class="panel panel-default cc_panel cc_order_information">
+                <div class="panel-heading cc_heading">
+                    <h3 class="panel-title cc_title">{{pageLabelMap 'OrderInformation'}}</h3>
+                </div>
+                <div class="panel-body cc_panel-body">
+                    <div class="col-sm-6 infoLeft">
+                        <p class="cc_order_information_number">
+                            <span class="cc_order_number">{{pageLabelMap 'OrderView_OrderNumber'}}&#58;&nbsp;</span>
+                            <span class="cc_order_name">{{this.orderName}}</span>
+                        </p>
+                        <!-- add Order Type -->
+                        <p class="cc_order_information_status">
+                            <span class="cc_order_status_label">{{pageLabelMap 'MyOrdersInc_OrderType'}}&#58;&nbsp;</span>
+                            <span class="cc_order_status">{{this.SBUXB2BOrderType}}</span>
+                        </p>
+                        <p class="cc_order_information_date">
+                            <span class="cc_order_date_label">{{pageLabelMap 'MyOrdersInc_OrderDate'}}&#58;&nbsp;</span>
+                            <span class="cc_order_date">{{this.orderDate}}</span>
+                        </p>
+                        <!-- add Order Name -->
+                        {{#if this.name}}
+                        <p class="cc_order_information_status">
+                            <span class="cc_order_status_label">{{pageLabelMap 'MyOrdersInc_OrderName'}}&#58;&nbsp;</span>
+                            <span class="cc_order_status">{{friendlyName this.name}}</span>
+                        </p>
+                        {{/if}}
+                    </div>
+                    <div class="col-sm-6 infoRight">
+                        <!-- add OracleNumber -->
+                        {{#if this.orderId}}
+                        <p>
+                            <span class="cc_order_ext_number">{{pageLabelMap 'MyOrdersInc_OracleNumber'}}&#58;&nbsp;</span>
+                            <span class="cc_order_ext_id">{{this.orderId}}</span>
+                        </p>
+                        {{/if}}
+                        <p class="cc_order_information_status">
+                            <span class="cc_order_status_label">{{pageLabelMap 'MyOrdersInc_Status'}}&#58;&nbsp;</span>
+                            <span class="cc_order_status">{{pageLabelMap this.orderStatus}}</span>
+                        </p>
+                        <!-- add Ship Date -->
+                        {{#if this.SBUXB2BShipDate}}
+                        <p class="cc_order_information_date">
+                            <span class="cc_order_date_label">{{pageLabelMap 'MyOrdersInc_ShipDate'}}&#58;&nbsp;</span>
+                            <span class="cc_order_date">{{dateString this.SBUXB2BShipDate}}</span>
+                        </p>
+                        {{/if}}
+                        <!-- add Invoice PDF Link -->
+                        {{#if this.invoiceBase64}}
+                        <p class="cc_order_invoice_download">
+                            <span class="cc_order_status_label">{{pageLabelMap 'MyOrdersInc_Invoice'}}&#58;&nbsp;</span>
+                            <a href="data:application/pdf;content-disposition:attachment;base64,{{this.invoiceBase64}}" download="{{pageLabelMap 'MyOrdersInc_InvoiceDownloadName' this.orderId}}">{{pageLabelMap 'MyOrdersInc_InvoiceLink'}}</a>
+                        </p>
+                        {{/if}}
+                    </div>
+                    <div class="col-sm-12 infoOrderHistory">
+                        <p class="pull-right">
+                            <a href="#" class="orderHistory cc_order_history">{{pageLabelMap 'OrderConfirmation_OrderHistory'}}</a>
+                        </p>
+                    </div>
+                    <div class="cc_order_information_payments">
+                        {{#each this.payments}}
+                        {{#ifEquals paymentMethod "PO Number"}}
+                        <p class="cc_order_information_payment">{{pageLabelMap 'CheckOut_POGuidingText'}}</p>
+                        {{/ifEquals}}
+                        {{/each}}
+                    </div>
+                </div>
+            </div>
+            {{/with}}
+            {{/if}}
+            <!--Messaging Info -->
+            <div class="row cc_message_row">
+                <div class="col-xs-12">
+                    <div class="messagingSection-Error" style="display: none"></div>
+                    <div class="messagingSection-Info" style="display: none"></div>
+                    <div class="messagingSection-Warning" style="display: none"></div>
+                </div>
+            </div>
+            <!--Address Info-->
+            {{#with this.orderData}}
+            <div class="panel panel-default cc_panel addressInfo">
+                <div class="panel-heading cc_heading">
+                    <h4 class="panel-title cc_title">
+                        <p>{{pageLabelMap 'LLICheckOut_Addresses'}}</p>
+                    </h4>
+                </div>
+                <div class="panel-body cc_body cc_address">
+                    <div class="col-sm-6 shipTo">
+                        <h4 class="panel-title cc_title">
+                            <p>{{pageLabelMap 'LLICheckOut_ShipAddrHeader'}}</p>
+                        </h4>
+                        <div>
+                            {{>addressDisplay ../this.shipToMap}}
+                        </div>
+                    </div>
+                    <div class="col-sm-6 billTo">
+                        <h4 class="panel-title cc_title">
+                            <p>{{pageLabelMap 'LLICheckOut_BillAddrHeader'}}</p>
+                        </h4>
+                        <div>
+                            {{>addressDisplay ../this.billTo}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/with}}
+            <!--Order Item Groups-->
+            <div class="row reviewContainer">
+                <div class="col-sm-12">
+                    {{#each this.orderData.EOrderItemGroupsS.models}}
+                    {{#with this.attributes}}
+                    {{#if this.EOrderItemsS}}
+                    <div class="panel panel-default cc_panel cc_review_groups" id="{{sfid}}">
+                        <div class="panel-heading cc_heading">
+                            <h4 class="panel-title cc_title">
+                                {{pageLabelMap groupName}}
+                            </h4>
+                        </div>
+                        <div class="panel-body cc_body">
+                            <div class="row LLIshipOptions cc_lli_shipoptions">
+                                <div class="shipInfo col-sm-6 cc_shipinfo_label">
+                                    <div class="orderNumber cc_order_number">
+                                        <label for="shipMethod" class="cc_shipping_method_label">{{pageLabelMap 'Checkout_OrderReferenceNumber'}}</label>
+                                        <span id="shipMethod" class="reviewShipOptions cc_shipping_method">{{this.orderR.sfdcName}}</span>
+                                    </div>
+                                    {{#ifDisplay 'SO.DsplShipOptions'}}
+                                    {{#if this.orderR.shipMethod}}
+                                    <div class="ship_method cc_ship_method">
+                                        <label for="shipMethod" class="cc_shipping_method_label">{{pageLabelMap 'LLICheckOut_ShippingMethod'}} </label>
+                                        <span id="shipMethod" class="reviewShipOptions cc_shipping_method">{{this.orderR.shipMethod}}</span>
+                                    </div>
+                                    {{/if}}
+                                    {{/ifDisplay}}
+
+                                    {{#ifEquals groupName 'Emergency_Order'}}
+                                    <div class="expeditedReasonCode">
+                                        <label class="control-label cc_expedited_reason_label">{{pageLabelMap 'Checkout_ExpeditedReasonCode'}}</label>
+                                        <span class="cc_shipping_inst">{{this.orderR.SBUXB2BReasonCode}}</span>
+                                    </div>
+                                    {{/ifEquals}}
+                                </div>
+                                <div class="shipInfo col-sm-6 cc_shipinfo_label">
+                                    <div class="po_number">
+                                        <label for="PONumber_{{sfid}}" class="control-label cc_shipping_inst_label">{{pageLabelMap 'Checkout_PONumber'}}</label>
+                                        {{#if this.orderR.SBUXB2BPONumber}}
+                                        <span class="cc_po_number">{{this.orderR.SBUXB2BPONumber}}</span>
+                                        {{else}}
+                                        <span class="cc_po_number">N/A</span>
+                                        {{/if}}
+                                    </div>
+
+                                    {{#if this.orderR.requestDate}}
+                                    <div class="ship_req_date cc_ship_req_date">
+                                        <label for="reviewShipOptions" class="reviewShipOptions cc_review_ship_options_label">{{pageLabelMap 'LLICheckout_RequestedDeliveryDt'}} </label>
+                                        <span id="reviewShipOptions" class="reviewShipOptions cc_review_ship_options">{{dateString this.orderR.requestDate}}</span>
+                                    </div>
+                                    {{/if}}
+
+                                    {{#ifEquals groupName 'Emergency_Order'}}
+                                    <div class="expeditedReasonComment">
+                                        <label class="control-label cc_expedited_comment_label">{{pageLabelMap 'Checkout_ExpeditedReasonComment'}}</label>
+                                        <span class="cc_shipping_inst">{{this.orderR.SBUXB2BReasonComment}}</span>
+                                    </div>
+                                    {{/ifEquals}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="groupItems cc_group_items">
+                                        {{> orderItemsLLIDesktop productList=../../productList isConfirmation=../../isConfirmation}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
+                    {{/with}}
+                    {{/each}}
+                </div>
+            </div>
+
+            <!-- CreditRequest: error msg block + Submit button -->
+            <apex:outputPanel layout="none" rendered="{!isCredit}" >
+                <div class="messagingSection-creditReq" id="messagingSection-creditReq" role="alert" style="display: none"></div>
+                <div class="row cc_submit_row">
+                    <button id="credit_submit" class="btn btn-default btn-sm creditRequestSubmit pull-right">{{pageLabelMap 'MyOrdersInc_CreditSubmitRequest'}}</button>
+                </div>
+                </br>
+            </apex:outputPanel>
+
+        </div>
+    </script>
+    <script>
+        //Date String helper
+        Handlebars.registerHelper("dateString", function(dateNumber){
+            return dateNumber ? (new Date(dateNumber)).toLocaleDateString('en', {timeZone:'UTC'}) : null;
+        });
+        //OrderName helper
+        Handlebars.registerHelper("friendlyName", function(orderName){
+            return orderName ? orderName.replace(/_/g, ' ') : null;
+        });
+    </script>
+    <script>
+        jQuery(function ($) {
+
+            //set 'Submit Credit' method
+            CCRZ.subsc = _.extend(CCRZ.subsc || {});
+            CCRZ.subsc.orderDetailActions = _.extend({
+                className: 'SBUX_B2B_OrderViewCtrl',
+                submitCredit: function (originalOrderId, returnLinesMap, callback) {
+                    this.invokeCtx(
+                        'createReturnOrder',
+                        originalOrderId,
+                        returnLinesMap,
+                        function (response) {
+                            callback(response);
+                        },
+                        {
+                            buffer: false,
+                            nmsp: false
+                        }
+                    );
+                }
+            }, CCRZ.RemoteInvocation);
+
+            CCRZ.pubSub.on('view:OrderDetailLLIView:refresh', function (viewRef) {
+                if (viewRef.model.attributes.orderData.EOrderItemGroupsS){
+                    let orderItemGroups = viewRef.model.attributes.orderData.EOrderItemGroupsS.models;
+                    for (var i = 0; i < orderItemGroups.length; i++){
+                        if (orderItemGroups[i].attributes.orderR && orderItemGroups[i].attributes.orderR.SBUXB2BReasonCode){
+                            var availableReasonCodes = viewRef.model.attributes.availableReasonCodes;
+                            var currentReasonCodeLabel = _.find(availableReasonCodes, {value: orderItemGroups[i].attributes.orderR.SBUXB2BReasonCode});
+                            if (currentReasonCodeLabel && currentReasonCodeLabel.label){
+                                orderItemGroups[i].attributes.orderR.SBUXB2BReasonCode = currentReasonCodeLabel.label;
+                            }
+                        }
+                    }
+                }
+
+                //get:set ShipTo Address
+                if (viewRef.model.attributes.shipToMap == null && viewRef.model.attributes.orderData && viewRef.model.attributes.orderData.shipTo){
+                    let addressList = viewRef.model.attributes.addressList;
+                    if (addressList && viewRef.model.attributes.orderData.shipTo){
+                        viewRef.model.attributes.shipToMap = _.find(addressList, {sfid : viewRef.model.attributes.orderData.shipTo});
+                    }
+                    viewRef.render();
+                }
+
+                //submit credit button logic
+                viewRef.submitCreditReq = function(event)
+                {
+                    this.clearMessages();
+
+                    //get order vars from page
+                    var orderId = this.model.attributes.orderData.sfid;
+                    var orderLines = this.model.attributes.orderData.EOrderItemGroupsS.models[0].attributes.EOrderItemsS;
+
+                    //init vars
+                    var returnLinesMap = {};
+                    var returnLinesMapSize = 0;
+                    var totalLineErrors = 0;
+
+                    //loop original order lines
+                    _.each(orderLines,function(orderLine)
+                    {
+                        var orderLineId = orderLine.sfid;
+                        var rtnQty = Math.abs(parseInt($('#creditQty_'+orderLineId)[0].value,10));
+                        var rtnReason = $('#creditReason_'+orderLineId)[0].value;
+
+                        //check if qty populated (otherwise, ignore this line)
+                        if(rtnQty != NaN && rtnQty != null && rtnQty > 0)
+                        {                           
+                            //scrub total return qty
+                            var returnQtyTotalClean = 0;
+                            if(!_.isUndefined(orderLine.returnQtyTotal) && orderLine.returnQtyTotal > 0)
+                                returnQtyTotalClean = orderLine.returnQtyTotal;
+
+                            //validate that each qty does not exceed (*ShippedQty - totalReturned)
+                            var shippedQty = Math.abs(parseInt($('#shippedQty_'+orderLineId)[0].textContent,10));
+                            if(rtnQty <= (shippedQty - returnQtyTotalClean))
+                            {
+                                //validate that line with >0 qty has a Reason Code
+                                if(rtnReason != null && rtnReason != 'blank'){
+                                    
+                                    //parse needed values from line in to a map
+                                    var innerLineMap = {};
+                                    innerLineMap['sfid']=orderLine.sfid;
+                                    innerLineMap['rtnQty']=rtnQty;
+                                    innerLineMap['rtnReason']=rtnReason;
+                                    innerLineMap['product']=orderLine.product;
+                                    innerLineMap['productType']=orderLine.productType;
+                                    innerLineMap['price']=orderLine.price;
+                                    innerLineMap['itemTotal']=orderLine.itemTotal;
+                                    innerLineMap['priceUOM']=orderLine.unitOfMeasure;
+                                    innerLineMap['primaryUOM']=orderLine.productR.SBUXB2BPrimaryUOM;
+                                    innerLineMap['primaryUOMQty']=orderLine.SBUXB2BPrimaryUOMQuantity;
+                                    
+                                    //add to returnLinesMap
+                                    returnLinesMap[orderLineId]=innerLineMap;
+                                    returnLinesMapSize += 1;
+
+                                } else {
+                                    viewRef.throwLineError(orderLineId,'MyOrdersInc_CreditErrorNoReasonCode');
+                                    totalLineErrors += 1;
+                                }
+
+                            } else {
+                                viewRef.throwLineError(orderLineId,'MyOrdersInc_CreditErrorOverQty');
+                                totalLineErrors += 1;
+                            }
+                        } else {
+                            //no qty on this line, do nothing
+                        }
+                    });   //end loop original order lines
+
+                    //check there is at least 1 qualified ReturnLine to process
+                    if(totalLineErrors == 0 && returnLinesMap != null && returnLinesMapSize != 0)
+                    {
+                        //disable "Submit Credit" button to prevent duplicate inserts
+                        event.target.disabled = true;
+                        
+                        //call SubmitCredit method and pass order vars, with encryptedId of new order being returned
+                        var newOrderEncyptId;
+                        CCRZ.subsc.orderDetailActions.submitCredit(orderId,JSON.stringify(returnLinesMap),function(response){
+                            if (response && response.success) {
+                                //successful call, navigate to orderView of new order
+                                document.location = "ccrz__OrderView?o=" + response.data;
+                            } else {
+                                this.throwCreditError('Unhandled Error in creating Credit Order');
+                                event.target.disabled = false;
+                            }
+                        });
+
+                    } else {
+                        if(totalLineErrors == 0) {
+                            this.throwCreditError('MyOrdersInc_CreditErrorNoLines');
+                        } else {
+                            this.throwCreditError('MyOrdersInc_CreditErrorCheckLines');
+                        }
+                    }
+
+                };  //end submit credit button logic
+
+                //error handlers
+                viewRef.throwLineError = function(orderLineId, errorMsgPageLabel){
+                    $('#messagingSection-creditReqLine-'+orderLineId)[0].innerHTML = '<span style=\'color:red\'>'+CCRZ.pagevars.pageLabels[errorMsgPageLabel]+'</span>';
+                    $('#messagingSection-creditReqLine-'+orderLineId)[0].removeAttribute("style", "display:none");
+                };
+                viewRef.throwCreditError = function(errorMsgPageLabel){
+                    CCRZ.pubSub.trigger("pageMessage", CCRZ.createPageMessage('ERROR', "messagingSection-creditReq", errorMsgPageLabel));
+                };
+                viewRef.clearMessages = function() {
+                    $('#messagingSection-creditReq')[0].setAttribute("style", "display:none");
+                    _.each($('.messagingSection-creditReqLine'),function(lineErrorModel)
+                    {
+                        lineErrorModel.setAttribute("style", "display:none");
+                        lineErrorModel.innerHTML = '';
+                    });
+                };
+
+                //set listeners
+                viewRef.events['click .creditRequestSubmit'] = 'submitCreditReq';
+                viewRef.delegateEvents();
+
+            });
+        }); //end jQuery
+    </script>
+
+    <!-- css for shipment-table -->
+    <style>
+        .cc_order_shipments_table {
+            margin-top: 0px;
+        } .creditRequestSubmit {
+            margin-right: 60px;
+        }
+    </style>
+</apex:component>

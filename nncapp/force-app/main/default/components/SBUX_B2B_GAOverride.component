@@ -1,0 +1,72 @@
+<!--
+ - Created by dgajwani on 6/2/20.
+ -->
+
+<apex:component id="SBUX_B2B_GAOverride">
+
+    <script>
+        jQuery(function ($) {
+            CCRZ.pubSub.once('view:OrderDetailLLIView:refresh', function (viewRef) {
+                CCRZ.ga.sendLLIOrderTransaction = function(context, txnData, hitCallback){
+                    // assumes lli order detail model
+                    var orderItems = [];
+                    var gaItems = [];
+                    var mergedGAItems = [];
+                    _.each(txnData.attributes['orderData'].EOrderItemGroupsS.models, function(orderItemGroup) {
+                        // append orderItems from all the shipping groups
+                        let groupTotal = 0;
+                        if (orderItemGroup.attributes.EOrderItemsS && orderItemGroup.attributes.EOrderItemsS.length > 0){
+                            let orderItems = orderItemGroup.attributes.EOrderItemsS;
+                            for (let orderItem in orderItems){
+                                if (orderItems[orderItem].itemTotal){
+                                    groupTotal += orderItems[orderItem].itemTotal;
+                                }
+                            }
+                        }
+                        var gaTxn = {
+                            'id': orderItemGroup.attributes.orderR.sfdcName
+                            , 'affiliation': txnData.attributes.orderStorefront
+                            , 'revenue': groupTotal
+                            , 'currency': txnData.attributes['orderData'].currencyISOCode
+                        }
+                        if (typeof hitCallback === 'function') { gaTxn['hitCallback'] = hitCallback; }
+                        ga(CCRZ.ga['trackerName']+'.ecommerce:addTransaction', gaTxn);
+
+                        orderItems = orderItems.concat(orderItemGroup.attributes.EOrderItemsS);
+                    });
+                    _.each(orderItems, function(orderItem) {
+                        // prepare gaItems
+                        var gaItem = {
+                            'id': orderItem.orderR.sfdcName
+                            , 'name': orderItem.productName
+                            , 'sku': orderItem.productSKU
+                            , 'price': orderItem.originalItemPrice
+                            , 'quantity': orderItem.quantity
+                            , 'currency': txnData.attributes['orderData'].currencyISOCode
+                        }
+                        gaItems.push(gaItem);
+                    });
+                    _.each(gaItems, function(gaItem) {
+                        // merge duplicate gaItems, adding the quantity
+                        if (!this[gaItem.name]) {
+                            this[gaItem.name] = {
+                                'id':gaItem.id
+                                , 'name': gaItem.name
+                                , 'sku':gaItem.sku
+                                , 'quantity': 0
+                                , 'price':gaItem.price
+                                , 'currency': gaItem.currency };
+                            mergedGAItems.push(this[gaItem.name]);
+                        }
+                        this[gaItem.name].quantity += gaItem.quantity;
+                    }, Object.create(null));
+                    _.each(mergedGAItems, function(mergedItem) {
+                        ga(CCRZ.ga['trackerName']+'.ecommerce:addItem', mergedItem);
+                    });
+                    ga(CCRZ.ga['trackerName']+'.ecommerce:send');
+                }
+            });
+        }); //end jQuery
+    </script>
+
+</apex:component>

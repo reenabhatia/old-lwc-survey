@@ -1,0 +1,18 @@
+<apex:page >
+
+    <apex:outputLink value="../lightning/o/ContentDocument/home" id="filesLink">
+        <apex:image url="{!$Resource.NexusTrainingImage}" width="100%"/>
+    </apex:outputLink>
+       <style type="text/css">
+        p {font-size: 16px; font-face: verdana}
+        p2 {font-size: 14px; font-face: verdana}
+
+    </style>
+
+    
+        
+    
+        <p> Hello {!$User.FirstName}!</p>
+        <p2>  For nexus training, guides, and the latest release notes <u>navigate to libraries section</u> of the files tab.</p2> <br></br>
+
+</apex:page>

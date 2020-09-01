@@ -1,0 +1,14 @@
+<!--
+ - Created by dgajwani on 5/5/20.
+ -->
+
+<apex:page id="SBUX_B2B_OrderConfirmationBIE"  applyHtmlTag="false" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false">
+
+    <c:SBUX_B2B_OrderDetailLLI />
+    <c:SBUX_B2B_OrderItemDetailLLI />
+    <c:SBUX_B2B_GAOverride />
+    <script type="text/javascript">
+        CCRZ.uiProperties.OrderDetailLLIView.desktop.tmpl = "SBUX-OrderDetailsLLI-View-Desktop";
+        CCRZ.uiProperties.OrderDetailLLIView.partial.orderItemsLLIDesktop = "#SBUX-OrderItemsLLI-Desktop";
+    </script>
+</apex:page>

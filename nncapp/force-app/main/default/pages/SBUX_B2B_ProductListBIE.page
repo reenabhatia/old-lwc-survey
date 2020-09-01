@@ -1,0 +1,10 @@
+<!--
+ - Created by dgajwani on 5/14/20.
+ -->
+
+<apex:page id="SBUX_B2B_ProductListBIE" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false">
+    <c:SBUX_B2B_PLP_ProductItemGrid />
+    <script type="text/javascript">
+        CCRZ.uiProperties.productListPageView.productItem.grid.tmpl = "SBUX-Product-Item-Grid";
+    </script>
+</apex:page>

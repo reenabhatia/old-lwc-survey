@@ -1,0 +1,16 @@
+<aura:component implements="lightning:availableForFlowScreens" controller="AtlasController">
+	<aura:attribute name="recordId" type="String" />
+    <aura:attribute name="action" type="String" default="createSite" />
+    <aura:attribute name="loaded" type="Boolean" default="false" />
+    <aura:attribute name="message" type="String" default="Contacting Atlas for Site Creation" />
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+
+    <div>
+        <aura:if isTrue="{! v.loaded }">
+            {!v.message}
+            <aura:set attribute="else">
+                <lightning:spinner size="small" alternativeText="Loading" />
+            </aura:set>
+        </aura:if>
+    </div>    
+</aura:component>

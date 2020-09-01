@@ -1,0 +1,81 @@
+<apex:component id="SBUX_B2B_ReOrder">
+    <script id="SBUX-B2B-ReOrder" type="text/template">
+        <div class="panel panel-default cc_panel cc_re_order">
+            <div class="panel-heading cc_heading">
+                <h3 class="panel-title cc_title">{{pageLabelMap 'ReOrder_RecentOrders'}}
+                    <span class="pull-right">
+                        <span class="pull-right">
+                            <span class="icon-toggle cc_filter_icon" role="button" data-toggle="collapse" data-target="#collapseReOrder" aria-expanded="true" aria-controls="collapseReOrder">
+                                <i class="fa fa-caret-down" aria-hidden="true"></i>
+                            </span>
+                        </span>
+                    </span>
+                </h3>
+            </div>
+            <div id="collapseReOrder" class="panel-collapse collapse in">
+                <div class="panel-body cc_body">
+                    <div id="cc_reorder" class="cc_reorder_body">
+                        {{#if this}}
+                            {{#each this}}
+                                <div class="cc_reorder_item">
+                                    <div class="row cc_reorder_details_row">
+                                        <div class="col-xs-12 cc_reorder_details_col">
+                                            <div class="row cc_reorder_row">
+                                                <div class="col-xs-6 cc_reorder_col">
+                                                    <span class="cc_reorder_ordernumber_label">{{pageLabelMap 'ReOrder_OrderNumber'}}&#58;</span>
+                                                </div>
+                                                <div class="col-xs-6 cc_prod_qty">
+                                                    <a class="cc_reorder_ordernumber gp_order_details" data-id="{{encryptedId}}" href="javascript:void(0)" title="{{this.orderName}}">{{this.orderName}}</a>
+                                                </div>
+                                            </div>
+                                            <div class="row cc_reorder_row">
+                                                <div class="col-xs-6 cc_reorder_col">
+                                                    <span class="cc_reorder_orderdate_label">{{pageLabelMap 'ReOrder_OrderDate'}}&#58;</span>
+                                                </div>
+                                                <div class="col-xs-6 cc_prod_qty">
+                                                    <span class="cc_reorder_orderdate">{{this.orderDateStr}}</span>
+                                                </div>
+                                            </div><div class="row cc_reorder_row">
+                                                <div class="col-xs-6 cc_reorder_col">
+                                                    <span class="cc_reorder_orderntotal_label">{{pageLabelMap 'ReOrder_OrderTotal'}}&#58;</span>
+                                                </div>
+                                                <div class="col-xs-6 cc_prod_qty">
+                                                    <span class="cc_reorder_ordertotal">{{price this.totalAmount}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="cc_show_all_items">
+                                        <button class="btn btn-link cc_ordered_items_link gp_ordered_items_link" id="orderedItemsLink" data-toggle="modal" data-id="{{this.sfid}}">{{pageLabelMap 'ReOrder_ShowAllItems'}}</button>
+                                    </p>
+                                    <!-- commented out "reorder" button (NGO-643) -->
+                                    <!-- <button type="button" class="btn btn-default btn-sm gp_btn_reorder" data-id="{{this.sfid}}" aria-label="Left Align">
+                                        <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span>&nbsp;{{pageLabelMap 'ReOrder_OrderAgain'}}
+                                    </button> -->
+                                </div>
+                                {{#if @last}}
+                                {{else}}
+                                    <hr>
+                                {{/if}}
+                            {{/each}}
+                            <div id="incItems"></div>
+                        {{else}}
+                            <div class="row cc_error_row">
+                                <div class="col-xs-12 cc_error_col">
+                                    <div class="cc_reorder_message">
+                                        {{pageLabelMap 'ReOrder_NoOrders'}}
+                                    </div>
+                                </div>
+                            </div>
+                        {{/if}}
+                    </div>
+                </div>
+                <div class="panel-footer cc_footer">
+                    {{#if this}}
+                        <button class="btn btn-link cc_reorder_gotohistory center-block gp_orderHistory">View All Orders</button>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </script>
+</apex:component>

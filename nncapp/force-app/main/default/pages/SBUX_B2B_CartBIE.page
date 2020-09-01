@@ -1,0 +1,12 @@
+<!--
+ - Created by dgajwani on 4/22/20.
+ -->
+
+<apex:page id="SBUX_B2B_CartBIE" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false">
+    <c:SBUX_B2B_CartDetail />
+    <c:SBUX_B2B_CartItemDetail />
+    <script type="text/javascript">
+        CCRZ.uiProperties.CartDetailView.desktop.tmpl = "SBUX-CartDetail-View-Desktop";
+        CCRZ.uiProperties.CartDetailView.partials.cartItemsDesktop = "#SBUX-CartItemDetail-View-Desktop";
+    </script>
+</apex:page>

@@ -1,0 +1,9 @@
+<aura:component controller="GetComplianceIssues" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	<aura:handler name="init" action="{!c.doInit}" value="{!this}"/>  
+    <aura:attribute name="url" type="String" />
+    <lightning:card title="View NNC Details">
+        <aura:set attribute="actions">
+            <lightning:button label="View" variant="brand" onclick="{!c.navigate}"/>
+        </aura:set>
+     </lightning:card>
+</aura:component>

@@ -1,0 +1,9 @@
+<apex:page id="SBUX_B2B_Footer" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false">
+    <c:SBUX_B2B_Overlay />
+
+    <!-- "Terms of Service" Link in Footer -->
+    <div class="cc_footerAnchor"></div>
+    <c:SBUX_B2B_FooterTOS />
+    
+    
+</apex:page>

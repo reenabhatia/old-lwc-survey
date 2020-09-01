@@ -1,0 +1,155 @@
+<!--
+ - Created by dgajwani on 5/14/20.
+ -->
+
+<apex:component id="SBUX_B2B_CartDetail">
+
+    <script id="SBUX-CartDetail-View-Desktop" type="text/template">
+        {{#if this.allowEO}}
+            <div class="customAlert alert-info">{{pageLabelMap 'Cart_EmergencyOrderCutoffMessage'}}</div>
+        {{/if}}
+        <div class="panel panel-default cc_panel cc_panel_shopping_cart cc_cart2">
+            <div class="panel-body cc_body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="cartMessaging"/>
+                        <h2 class="title cc_title">{{pageLabelMap 'CartInc_ShoppingCart'}}</h2>
+                    </div>
+                </div>
+                <div class="row actionTotals-Top">
+                    <div class="col-xs-12">
+                        {{> actionsTotals}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        {{#if this.allowEO}}
+                            <p class="eoCheckbox-all pull-right">
+                                <span class="cc_label"><input class="eocheckboxAll" type="checkbox" {{#if (allItemEO this.ECartItemsS)}} checked {{/if}} /></span>
+                                <span class="cc_value">{{pageLabelMap 'AllItemsAreEO'}}</span>
+                            </p>
+                        {{/if}}
+                        <div id="cart_items_container" class="cc_cart_item_container">
+                            {{> headerSection}}
+                            <div class="cart_item_list cc_cart_item_list">
+                                {{#if this.ECartItemsS}}
+                                {{#each this.ECartItemsS.models}}
+                                <div class="cart_item {{this.attributes.sfid}} cc_cart_item"
+                                     data-sku="{{this.attributes.product.SKU}}">
+                                    {{> cartItemsDesktop}}
+                                </div>
+                                {{/each}}
+                                <div class="col-xs-12">
+                                    <div class="groupTotals pull-right">
+                                        {{#if (groupTotal this.ECartItemsS 'standard')}}
+                                        <div class="standardOrderTotal">
+                                            <span class="cc_label">{{pageLabelMap 'CartInc_StandardOrderTotal'}}</span>
+                                            <span class="cc_value">{{price (groupTotal this.ECartItemsS 'standard')}}</span>
+                                        </div>
+                                        {{/if}}
+                                        {{#if (groupTotal this.ECartItemsS 'emergency')}}
+                                        <div class="emergencyOrderTotal">
+                                            <span class="cc_label">{{pageLabelMap 'CartInc_EmergencyOrderTotal'}}</span>
+                                            <span class="cc_value">{{price (groupTotal this.ECartItemsS 'emergency')}}</span>
+                                        </div>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                                {{/if}}
+                            </div>
+                        </div>
+                        {{> emailModal}}
+                        {{> rfqModal}}
+                        {{> wishModal}}
+                        {{> actionsTotals}}
+                    </div>
+                </div>
+            </div>
+            <div id="modalSec"></div>
+        </div>
+    </script>
+
+    <script>
+        jQuery(function ($) {
+            CCRZ.subsc = _.extend(CCRZ.subsc || {});
+
+            CCRZ.subsc.EOActions = _.extend({
+                className: 'SBUX_B2B_EO_Ctrl',
+                updateEOStatuses: function (cartItemsJSON, callback) {
+                    this.invokeCtx('updateCartItemsEOStatus', cartItemsJSON, function (response) {
+                            callback(response);
+                        },
+                        {
+                            buffer: false, // this call will be executed by itself
+                            nmsp: false  // defines that this is a call to a subscriber class
+                        }); // end invokeCtx call S
+                }
+            }, CCRZ.RemoteInvocation);
+
+            CCRZ.pubSub.once('view:CartDetailView:refresh', function (viewRef) {
+                Object.getPrototypeOf(viewRef).events['click .eocheckboxAll'] = 'updateAllCartItemEOStatus';
+
+                Object.getPrototypeOf(viewRef).updateAllCartItemEOStatus = function (event) {
+                    var objLink = $(event.currentTarget);
+                    var allEOEligibleCartItems = document.getElementsByClassName('eocheckbox');
+                    var items = this.model.get('ECartItemsS');
+                    var cartItemsMap = {};
+                    for (const element of allEOEligibleCartItems) {
+                        element.checked = objLink[0].checked;
+                        var cartItemSFID = element.dataset.id;
+                        var matchingLines = items.where({'sfid': cartItemSFID});
+                        if (matchingLines && matchingLines.length > 0) {
+                            matchingLines[0].set('SBUXB2BIsEmergency', objLink[0].checked);
+                            cartItemsMap[matchingLines[0].id] = matchingLines[0].attributes.SBUXB2BIsEmergency;
+                        }
+                    }
+                    if (Object.keys(cartItemsMap).length > 0) {
+                        CCRZ.subsc.EOActions.updateEOStatuses(JSON.stringify(cartItemsMap), function (response) {
+                            if (response && response.success) {
+                                viewRef.render();
+                            }
+                        });
+                    }
+                };
+                viewRef.delegateEvents();
+            });
+
+            Handlebars.registerHelper("groupTotal", function (cartItems, orderType) {
+                if (cartItems && cartItems.models && orderType){
+                    let sum = 0;
+                    let cartItemModels = cartItems.models;
+                    for (let cartItem in cartItemModels) {
+                        let currCartItem = cartItemModels[cartItem].attributes;
+                        if (currCartItem && orderType === 'standard' && !currCartItem.SBUXB2BIsEmergency && currCartItem.itemTotal) {
+                            sum += currCartItem.itemTotal;
+                        } else if (currCartItem && orderType === 'emergency' && currCartItem.SBUXB2BIsEmergency && currCartItem.itemTotal){
+                            sum += currCartItem.itemTotal;
+                        }
+                    }
+                    return sum;
+                }
+            });
+            Handlebars.registerHelper("allItemEO", function (cartItems) {
+                if (cartItems && cartItems.models){
+                    // Default is false.
+                    let result = false;
+                    let cartItemModels = cartItems.models;
+                    for (let cartItem in cartItemModels) {
+                        let currCartItem = cartItemModels[cartItem].attributes;
+                        if (currCartItem){
+                            if (currCartItem.product.SBUXB2BEOEligible && currCartItem.SBUXB2BIsEmergency){
+                                result = true;
+                            }
+                            if (currCartItem.product.SBUXB2BEOEligible && !currCartItem.SBUXB2BIsEmergency){
+                                result = false;
+                                break;
+                            }
+                        }
+                    }
+                    return result;
+                }
+            });
+        }); //end jQuery
+    </script>
+
+</apex:component>

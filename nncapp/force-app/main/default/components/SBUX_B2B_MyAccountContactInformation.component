@@ -1,0 +1,54 @@
+<!-- 
+ - NGO-304 - MyAccount/Contact Info
+ -  hides OOTB sections from "Contact Information"
+ -->
+<apex:component id="SBUX_B2B_MyAccountContactInformation" allowDML="true" layout="none">
+
+    <!--MyAccount "Contact Information" Template Override-->
+    <script id="SBUX-B2B-MyAccount-ContactInformation-Desktop" type="text/template">
+        <div class="panel panel-default cc_panel cc_myaccount_profile">
+            <div class="panel-body cc_body cc_myaccount_content">
+                <h3 class="cc_title">{{pageLabelMap 'MyAccount_Profile'}}</h3>
+                {{#ifEquals this.commerceType "B2B"}}
+                    <div class="panel panel-default cc_panel cc_myaccount_information">
+                        <div class="panel-heading cc_heading">
+                            <h3 class="panel-title cc_title">{{pageLabelMap 'MyAccount_Profile_Account_Information'}}</h3>
+                        </div>
+                        <div class="panel-body cc_body cc_myaccount_general">
+                            <p class="myAccProfileNote cc_profile_note">
+                                {{pageLabelMap 'MyAccount_Profile_Note'}}
+                            </p>
+                            {{#ifDisplay 'reg.addlInf'}}
+                                <p class="myAccProfileCompany cc_profile_company">
+                                    <span class="cc_profile_company_label">{{pageLabelMap 'MyAccount_Profile_Company'}}&#58;</span>
+                                    <span class="cc_profile_company_valuel">{{accountBean.name}}</span>
+                                </p>
+                            {{/ifDisplay}}
+                            <p class="myAccAccountGroup cc_profile_account_group">
+                                <span class="cc_profile_account_group_label">{{pageLabelMap 'MyAccount_Profile_Account_Group'}}&#58;</span>
+                                <span class="cc_profile_account_group_value">{{accountBean.accountGroupName}}</span>
+                            </p>
+                            <p class="myAccProfilePhone cc_profile_phone">
+                                <span class="cc_profile_phone_label">{{pageLabelMap 'MyAccount_Profile_Phone'}}&#58;</span>
+                                <span class="cc_profile_phone_value">{{accountBean.phone}}</span>
+                            </p>
+                            <div class="row">
+                                <div class="col-md-6 myAccBillingAddr cc_billing_address">
+                                    <span class="cc_profile_billing_label">{{pageLabelMap 'MyAccount_Profile_Account_Billing_Address'}}</span>
+                                    <span class="cc_profile_billing_value">{{> addressDisplay this.accountBean.billingAddress}}</span>
+                                </div>
+                                <div class="col-md-6 myAccShippingAddr cc_shipping_address">
+                                    <span class="cc_profile_shipping_label">{{pageLabelMap 'MyAccount_Profile_Account_Shipping_Address'}}</span>
+                                    <span class="cc_profile_shipping_value">{{> addressDisplay this.accountBean.shippingAddress}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/ifEquals}}
+            </div>
+            <!--"Contact Information" section removed-->
+            <!--"User Information" section removed-->
+        </div>
+    </script>
+    <!--END "Contact Information" Template Override-->
+</apex:component>

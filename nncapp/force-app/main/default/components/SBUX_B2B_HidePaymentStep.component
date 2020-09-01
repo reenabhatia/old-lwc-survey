@@ -1,0 +1,19 @@
+<!--
+ - Created by dgajwani on 5/1/20.
+ -->
+
+<apex:component id="SBUX_B2B_HidePaymentStep">
+    <script type="text/javascript">
+        jQuery(function ($) {
+            CCRZ.pubSub.on('view:LLIcartCheckoutView:awaitingSubViewInit', function (theView) {
+                if(CCRZ.Checkout.LLIshippingdetails){
+                    CCRZ.Checkout.LLIshippingdetails.register(theView);
+                }
+                if(CCRZ.Checkout.LLIorderreview){
+                    CCRZ.Checkout.LLIorderreview.register(theView);
+                }
+                CCRZ.pubSub.trigger('view:LLIcartCheckoutView:subViewInit');
+            });
+        });
+    </script>
+</apex:component>

@@ -1,0 +1,52 @@
+<apex:component id="SBUX_B2B_FooterTOS" layout="none">
+    
+    <script id="foot_desktop" type="text/template">
+        <div class="row text-center cc_text-center">
+            <div class="cc_termsLink">
+                <span>{{pageLabelMap 'TermsOfService'}} <a href='s/terms-of-use'>Terms of Use</a></span>
+            </div>
+        </div>
+    </script>
+    
+    <script>
+        jQuery(function($) {
+
+            CCRZ.views.footView = Backbone.View.extend({
+                template : CCRZ.util.template('foot_desktop'),
+                viewName : "footView",
+                initialize : function(){
+                    this.render();
+                },
+                render: function(){
+                    this.$el = $(".cc_footerAnchor");
+                    this.$el.html(this.template());
+                },
+                viewChanged: function() {
+                    if(this.currentView !== CCRZ.display.currentView) {
+                        this.currentView = CCRZ.display.currentView;
+                        return true;
+                    }
+                    return false;
+                },
+                renderViewChanged: function() {
+                    CCRZ.display.setCurrentView();
+                    if(this.viewChanged()) {
+                        this.render();
+                    }
+                }
+            });
+
+            var footerView = new CCRZ.views.footView();
+
+        });
+    </script>
+    
+    <style>
+        .cc_termsLink {
+            font-size: x-small; 
+        } .cc_termsLink a {
+            color: #fff;
+        }
+    </style>
+
+</apex:component>

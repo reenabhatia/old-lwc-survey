@@ -1,0 +1,174 @@
+<template>
+    <lightning-card title='Compliance Items' icon-name="custom:custom18">
+        <template if:true={data}>
+            <template if:true={childLoaded}>
+                <article class="slds-card">
+                    <div class="fontSize">
+                        <lightning-accordion allow-multiple-sections-open active-section-name={openSections}>
+                            <template if:true={compliance}>
+                                <template for:each={compliance} for:item="comp">
+                                    <lightning-accordion-section name={comp.Name} label={comp.Name} key={comp.Name}>
+                                        <div class="slds-text-body_small">
+                                            <template if:true={comp.Issues}>
+                                                <!-- <c-child-issues-comp issue-details={comp.CompIssues__r}></c-child-issues-comp>  -->
+                                                <lightning-datatable key-field="Id" data={comp.Issues} columns={columns}
+                                                    class="disableCheckBox" show-row-number-column="true"
+                                                    selected-rows={selectedRows} onrowaction={handleRowAction}
+                                                    onrowselection={handleRowSelection} resize-column-disabled>
+                                                </lightning-datatable>
+                                                <!-- Code for the modal pop-up to upload photos starts -->
+
+                                                <template if:true={uploadPhotos}>
+                                                    <!-- Modal/Popup Box starts here -->
+                                                    <section role="dialog" tabindex="-1"
+                                                        aria-labelledby="modal-heading-01" aria-modal="true"
+                                                        aria-describedby="modal-content-id-1"
+                                                        class="slds-modal slds-fade-in-open">
+                                                        <div class="slds-modal__container">
+                                                            <!-- Modal/Popup Box LWC header here -->
+                                                            <header class="slds-modal__header">
+                                                                <button
+                                                                    class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                                                    title="Close" onclick={closeModal}>
+                                                                    <lightning-icon icon-name="utility:close"
+                                                                        alternative-text="close" variant="inverse"
+                                                                        size="small">
+                                                                    </lightning-icon>
+                                                                    <span class="slds-assistive-text">Close</span>
+                                                                </button>
+                                                                <h2 class="slds-text-heading_medium slds-hyphenate">
+                                                                    Upload
+                                                                    photos
+                                                                    for the
+                                                                    issue</h2>
+                                                            </header>
+                                                            <!-- Modal/Popup Box LWC body starts here -->
+                                                            <div class="slds-modal__content slds-p-around_medium">
+                                                                <template if:false={isPreview}>
+                                                                    <lightning-file-upload label="Upload Photos"
+                                                                        name="fileUploader" accept={acceptedFormats}
+                                                                        record-id={recId}
+                                                                        onuploadfinished={handleUploadFinished}
+                                                                        multiple>
+                                                                    </lightning-file-upload>
+                                                                    <template if:true={files}>
+                                                                        <div class="slds-col slds-size_12-of-12">
+                                                                            <template if:true={files}>
+                                                                                <template for:each={files}
+                                                                                    for:item="fUrl">
+                                                                                    <div style="margin: 5px; border: 2px solid #ccc; float: left;width: 180px;"
+                                                                                        key={fUrl.Id}>
+                                                                                        <img src={fUrl.src}
+                                                                                            title={fUrl.name}
+                                                                                            onclick={handleFilePreview}
+                                                                                            data-id={fUrl.Id}
+                                                                                            width="600" height="400">
+                                                                                        <div
+                                                                                            style="padding: 15px;text-align: center;">
+                                                                                            {fUrl.Description}</div>
+                                                                                    </div>
+                                                                                </template>
+                                                                            </template>
+                                                                        </div>
+                                                                    </template>
+                                                                </template>
+
+                                                                <div class="slds-col slds-size_12-of-12">
+                                                                    <template if:true={isPreview}>
+                                                                        <lightning-record-edit-form
+                                                                            record-id={currentRecId}
+                                                                            object-api-name="ContentDocument"
+                                                                            onsubmit={handleSubmit}
+                                                                            onsuccess={handleSuccess}>
+                                                                            <lightning-input-field field-name="Title">
+                                                                            </lightning-input-field>
+                                                                            <lightning-input-field
+                                                                                field-name="Description">
+                                                                            </lightning-input-field>
+                                                                            <div style="text-align:center">
+                                                                                <lightning-button
+                                                                                    class="slds-m-top_small"
+                                                                                    variant="brand" type="submit"
+                                                                                    name="update" label="Update">
+                                                                                </lightning-button>
+                                                                                <lightning-button
+                                                                                    class="slds-p-left_medium"
+                                                                                    label="Delete" name="delete"
+                                                                                    onclick={handleDelete}
+                                                                                    variant="brand">
+                                                                                </lightning-button>
+                                                                            </div>
+                                                                        </lightning-record-edit-form>
+                                                                    </template>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Modal/Popup Box LWC footer starts here -->
+                                                            <footer class="slds-modal__footer">
+                                                                <button class="slds-button slds-button_neutral"
+                                                                    onclick={closeModal} title="Cancel">Cancel</button>
+                                                                <button class="slds-button slds-button_brand"
+                                                                    onclick={submitDetails} title="OK">OK</button>
+                                                            </footer>
+                                                        </div>
+                                                    </section>
+                                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                                </template>
+                                                <!-- Code for the modal pop-up to upload photos ends -->
+                                                <!-- Code for the modal pop-up for Approval starts -->
+
+                                                <template if:true={approveClicked}>
+
+                                                    <section role="dialog" tabindex="-1"
+                                                        aria-labelledby="modal-heading-01" aria-modal="true"
+                                                        aria-describedby="modal-content-id-1"
+                                                        class="slds-modal slds-fade-in-open">
+                                                        <div class="slds-modal__container">
+                                                            <header class="slds-modal__header">
+                                                                <button
+                                                                    class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                                                    title="Close" onclick={closeModalApprove}>
+                                                                    <lightning-icon icon-name="utility:close"
+                                                                        alternative-text="close" variant="inverse"
+                                                                        size="small">
+                                                                    </lightning-icon>
+                                                                    <span class="slds-assistive-text">Close</span>
+                                                                </button>
+                                                                <h2 class="slds-text-heading_medium slds-hyphenate">
+                                                                    Confirmation</h2>
+                                                            </header>
+
+                                                            <div class="slds-modal__content slds-p-around_medium">
+                                                                <p class="slds-align_absolute-center">The page will be uneditable post approval
+                                                                </p>
+                                                            </div>
+
+                                                            <footer class="slds-modal__footer">
+                                                                <button class="slds-button slds-button_neutral"
+                                                                    onclick={closeModalApprove}
+                                                                    title="Cancel">Cancel</button>
+                                                                <button class="slds-button slds-button_brand"
+                                                                    onclick={handleClickApprove} title="OK">OK</button>
+                                                            </footer>
+                                                        </div>
+                                                    </section>
+                                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                                </template>
+                                                <!-- Code for the modal pop-up for Approval ends -->
+                                            </template>
+                                        </div>
+                                    </lightning-accordion-section>
+                                </template>
+                            </template>
+                        </lightning-accordion>
+                        <footer class="slds-card__footer">
+                            <lightning-button variant="brand" label="Send for approval" title="Primary action"
+                                onclick={approveClickHandle} disabled={disableApprove}></lightning-button>
+                            <lightning-button variant="brand" class="slds-p-left_medium" label="Save" title="Save"
+                                onclick={handleClickSave} disabled={disableSave}></lightning-button>
+                        </footer>
+                    </div>
+                </article>
+            </template>
+        </template>
+    </lightning-card>
+</template>

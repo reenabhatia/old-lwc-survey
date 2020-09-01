@@ -1,0 +1,12 @@
+<!--
+ - Created by dgajwani on 5/13/20.
+ -->
+
+<apex:page id="SBUX_B2B_ProductDetailBIE" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false">
+    <c:SBUX_B2B_ProductDetail />
+    <c:SBUX_B2B_PDPRelatedProducts />
+    <script type="text/javascript">
+        CCRZ.uiProperties.productDetailView.desktop.tmpl = "SBUX-ProductDetail-Desktop";
+        CCRZ.uiProperties.prodSectionView.desktop.main.tmpl = "SBUX-ProductDetail-ProductsSection-Desktop";
+    </script>
+</apex:page>

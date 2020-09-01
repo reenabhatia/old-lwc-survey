@@ -1,0 +1,17 @@
+<!--
+ - ccrz__MyAccount page include
+ -->
+<apex:page id="SBUX_B2B_MyAccountBIE" applyHtmlTag="false" docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false">
+    
+    <c:SBUX_B2B_MyAccountContactInformation />
+    <c:SBUX_B2B_MyAccountWishListDetail />
+    <c:SBUX_B2B_MyDeliverySchedule />
+    <c:SBUX_B2B_MyOrders />
+    
+    <!--set template overrides-->
+    <script type="text/javascript">
+        CCRZ.uiProperties.myOrdersView.desktop.tmpl = "SBUX-B2B-MyAccount-MyOrders-Desktop";
+        CCRZ.uiProperties.contactInfoView.desktop.tmpl = "SBUX-B2B-MyAccount-ContactInformation-Desktop";
+        CCRZ.uiProperties.wishlistDetailsView.desktop.tmpl = "SBUX-MyAccount-WishlistDetail-Desktop";
+    </script>
+</apex:page>

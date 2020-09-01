@@ -1,0 +1,26 @@
+<!--
+ - Created by dgajwani on 6/8/20.
+ -->
+
+<apex:component id="SBUX_B2B_LogoURL">
+    <script>
+        jQuery(function ($) {
+            Handlebars.registerHelper('goHome', function(obj, styleClass, id, options){
+                if(options && options.hash['image'])
+                    content = options.hash['image'];
+                if(options && options.hash['text']){
+                    content = _.escape(_.unescape(options.hash['text']));
+                }
+                if(options && options.hash['icon']) {
+                    content = options.hash['icon'];
+                }
+                var href = CCRZ.pagevars.currSiteURL + 's/' + CCRZ.buildQueryString('');
+                return new Handlebars.SafeString("<a id='" + id + "'  href='" + href + "' onClick=\"CCRZ.openHome(this)\" class='" + styleClass  + " gp_home" + "'>" + content + "</a>")
+            });
+
+            CCRZ.openHome = function(){
+                window.location = CCRZ.pagevars.currSiteURL + 's/' + CCRZ.buildQueryString('');
+            };
+        }); //end jQuery
+    </script>
+</apex:component>

@@ -1,0 +1,8 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:hasPageReference" access="global" >
+ <aura:handler name="init" value="{!this}" action="{!c.init}"/>	
+    <!-- <aura:attribute name="recordIdEvent" type="String"/>
+    <aura:handler event="c:NNCCompRecord" action="{!c.getRecordId}"/> 
+ <c:issuesDetails storeId="{!v.recordIdEvent}"/>
+-->
+     <c:issuesDetails/>   
+</aura:component>

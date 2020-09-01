@@ -1,0 +1,23 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:hasPageReference,lightning:isUrlAddressable" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="url" type="String"/>
+    <lightning:navigation aura:id="navigate" />
+    <lightning:card class="cardHeader" title="DM Approach: Compliance">
+        <lightning:layout horizontalAlign="center">
+            <lightning:layoutItem size="3">
+                <lightning:button class="slds-align_absolute-center" label="Standard NNC" onclick="{!c.navigate}" variant="brand"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="3">  
+                <lightning:button class="slds-align_absolute-center" label="Critical NNC" onclick="{!c.navigate}" variant="brand"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="3">
+                <lightning:button class="slds-align_absolute-center" label="Default NNC" onclick="{!c.navigate}" variant="brand"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </lightning:card>
+    
+    <!--<c:storeComp storeId="{!v.recordId}"/>
+<aura:registerEvent name="NNCCompRecord" type="c:NNCCompRecord"/>
+-->
+</aura:component>

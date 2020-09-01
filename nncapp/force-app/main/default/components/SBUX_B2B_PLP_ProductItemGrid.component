@@ -1,0 +1,220 @@
+<!--
+ - Created by dgajwani on 5/14/20.
+ -->
+
+<apex:component id="SBUX_B2B_PLP_ProductItemGrid">
+    <script id="SBUX-Product-Item-Grid" type="text/template">
+        <div class="cc_product_item cc_grid_item">
+            <div class="thumbnail">
+                <div class="cc_grid_image_container col-md-12">
+                    {{#if EProductMediasS.[0]}}
+                    {{productLink this 'cc_product_name_img' image=(displayImage this 'img-responsive center-block' src=(displayEProductMedia this.EProductMediasS.[0]) alt=this.EProductMediasS.[0].altMessage dataId=this.SKU)}}
+                    {{else}}
+                        <div class="noimagefound"></div>
+                    {{/if}}
+                </div>
+                <div class="cc_grid_product_info caption">
+                    <h5 class="cc_product_link">
+                        {{#if this.alternateName}}
+                        {{productLink this 'cc_product_name' text=this.alternateName}}
+                        {{else}}
+                        {{productLink this 'cc_product_name' text=this.sfdcName}}
+                        {{/if}}
+                    </h5>
+                    {{#ifDisplay 'PL.DsplSku'}}
+                    <p class="cc_product_sku">
+                        <span class="cc_label">{{pageLabelMap 'ProductList_SKU'}}</span>
+                        <span class="cc_product_sku">{{this.SKU}}</span>
+                    </p>
+                    {{/ifDisplay}}
+                    <div class="upc cc_upc">
+                        <span class="cc_label">{{pageLabelMap 'ProductDetailsInc_UPC'}}</span>
+                        <span class="value cc_value">{{this.SBUXB2BUPC}}</span>
+                    </div>
+                    {{#ifDisplay 'PL.DsplShortDesc'}}
+                    <p class="description cc_desc">{{unescape shortDesc}}</p>
+                    {{/ifDisplay}}
+                    {{#ifDisplay 'PL.DsplAddtInfo'}}
+                    <a class="included_items cc_included_items" href="#additional_info{{this.sfid}}" id="additionalInfoLink" data-toggle="modal">{{pageLabelMap 'ProductList_AdditionalInfo'}}</a>
+                    <div id="additional_info{{this.sfid}}" class="modal fade cc_modal" tabindex="-1" role="dialog" aria-labelledby="ProductListItemLabel" aria-hidden="true">
+                        <div class="modal-dialog cc_modal-dialog" role="document">
+                            <div class="modal-content cc_modal-content">
+                                <div class="modal-header cc_modal-header">
+                                    <button type="button" class="close cc_close" data-dismiss="modal" aria-label="{{pageLabelMap 'Modal_Aria_Close'}}"><span aria-hidden="true">&times;</span></button>
+                                    <h3 class="cc_prod_list_item_label" id="ProductListItemLabel">
+                                        {{#if this.alternateName}}
+                                        {{this.alternateName}}
+                                        {{else}}
+                                        {{this.sfdcName}}
+                                        {{/if}}
+                                        {{pageLabelMap 'ProductList_MiscDetails'}}
+                                    </h3>
+                                </div>
+                                <div class="modal-body cc_body">
+                                    {{#if this.miscDetails}}
+                                    <span class="cc_misc_details">{{unescape this.miscDetails}}</span>
+                                    {{/if}}
+                                    {{#ifDisplay 'PL.DsplAddtlSku'}}
+                                    <span class="cc_sku">{{pageLabelMap 'ProductList_SKU'}}:</span>&nbsp;{{this.SKU}}<br/><br/>
+                                    {{/ifDisplay}}
+                                    {{#ifDisplay 'PL.DsplAddtlShortDesc'}}
+                                    <p class="cc_desc">{{unescape this.shortDesc}}</p>
+                                    {{/ifDisplay}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/ifDisplay}}
+                    <div class="cc_price_container cc_grid_price_info caption">
+                        {{>priceDisplay}}
+                    </div>
+                    {{#ifDisplay 'PL.DsplUOM'}}
+                    <div class="cc_product_uom">
+                        <span class="cc_label">{{pageLabelMap 'ProductList_UOM'}}</span>
+                        <span class="cc_product_uom">{{pageLabelPrefixMap 'UOM_' this.unitOfMeasure}}</span>
+                    </div>
+                    {{/ifDisplay}}
+                    <div class="emergency">
+                        <span class="cc_label">{{pageLabelMap 'ProductDetailsInc_EmergencyProduct'}}</span>
+                        {{#if this.SBUXB2BEOEligible}}
+                        <span class="value cc_value">{{pageLabelMap 'ProductDetailsInc_EOEligible'}}</span>
+                        {{else}}
+                        <span class="value cc_value">{{pageLabelMap 'ProductDetailsInc_EOInEligible'}}</span>
+                        {{/if}}
+                        <span class='glyphicon glyphicon-info-sign my-tooltip' title="{{pageLabelMap 'ProductList_EOToolTip'}}"/>
+                    </div>
+                    <div class="maxOrderableQty">
+                        <span class="cc_label">{{pageLabelMap 'ProductDetailsInc_MaxOrderableQty'}}</span>
+                        {{#if this.SBUXB2BMaxOrderableQty}}
+                        <span class="value cc_value">{{this.SBUXB2BMaxOrderableQty}}</span>
+                        {{else}}
+                        <span class="value cc_value">{{pageLabelMap 'ProductDetailsInc_MaxOrderableQtyNA'}}</span>
+                        {{/if}}
+                    </div>
+                </div>
+                <div class="cc_product_grid_actions">
+                    <div class="messagingSection-Warning-{{this.sfid}}" style="display: none"></div>
+                    <div class="messagingSection-Info-{{this.sfid}}" style="display: none"></div>
+                    <div class="messagingSection-Error-{{this.sfid}}" style="display: none"></div>
+                    {{#ifDisplay 'PL.DsplAddCart'}}
+                    {{#unless this.showNewSubscriptionSelection}}
+                    {{#if this.canAddtoCart}}
+                        <div class="cc_qty_control_row row">
+                            <div class="cc_input_group col-xs-12 col-md-6 form-group">
+                                <input type="text" id="{{sfid}}_qtyEntry" value="1" class="input-text qty entry plus_minus form-control cc_entry" maxlength="7" />
+                            </div>
+                            <div class="col-xs-12 form-group">
+                                <div class="UOMCalculation">
+                                    <span id="UOMConversionValue_{{sfid}}">{{UOMConversion this}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-16 inventoryMessaging">
+                            {{#if (inventoryHelper this)}}
+                                {{#ifEquals this.inventoryLevel 'high'}}
+                                    <span class="glyphicon glyphicon-ok green" aria-hidden="true"/>
+                                    <span>{{pageLabelMap 'CartInc_HighStockMessage'}}</span>
+                                {{/ifEquals}}
+
+                                {{#ifEquals this.inventoryLevel 'medium'}}
+                                    <span class="glyphicon glyphicon-warning-sign orange" aria-hidden="true"/>
+                                    <span>{{pageLabelMap 'CartInc_MediumStockMessage'}}</span>
+                                {{/ifEquals}}
+
+                                {{#ifEquals this.inventoryLevel 'low'}}
+                                    <span class="glyphicon glyphicon-exclamation-sign red" aria-hidden="true"/>
+                                    <span>{{pageLabelMap 'CartInc_LowStockMessage'}}</span>
+                                    <span class='glyphicon glyphicon-info-sign my-tooltip' title="{{pageLabelMap 'ProductList_LowInventoryToolTip'}}"/>
+                                {{/ifEquals}}
+                            {{else}}
+                                <span class="noInventoryInfo">{{pageLabelMap 'No_Inventory_Info_Available'}}</span>
+                            {{/if}}
+                        </div>
+                        <div class="action cc_action wishFinder">
+                            <div class="cc_add_to form-group">
+                                <button class="btn btn-default center-block cc_add_to_btn cc_add_to_btn_{{this.sfid}}" role="button">{{pageLabelMap 'ProductList_AddToCart'}}</button>
+                            </div>
+                        </div>
+                    {{/if}}
+                    {{/unless}}
+                    {{/ifDisplay}}
+                    {{#ifDisplay 'PCP.Enabled'}}
+                    {{#ifEquals this.productType 'Product'}}
+                    <div class="hidden-xs cc_compare form-group">
+                        <button type="button" class="btn btn-default btn-sm btn-block add_to_compare_desktop_button cc_addto_compare {{#if inCompareTray}}active{{else}}{{#if compareTrayFull}}disabled{{/if}}{{/if}}">
+                            {{#if inCompareTray}}
+                            {{pageLabelMap 'ProductCompare_RemoveFromCompare'}}
+                            {{else}}
+                            {{pageLabelMap 'ProductCompare_AddToCompare'}}
+                            {{/if}}
+                        </button>
+                    </div>
+                    {{/ifEquals}}
+                    {{/ifDisplay}}
+                    {{#ifNotEquals this.productType 'Aggregated'}}
+                    {{#unless this.showNewSubscriptionSelection}}
+                    <div class="cc_wishlist">
+                        <div class="wishFinder" data-sku="{{this.SKU}}">
+                            <div class="wishButtons"></div>
+                        </div>
+                    </div>
+                    {{/unless}}
+                    {{/ifNotEquals}}
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        jQuery(function ($) {
+            Handlebars.registerHelper("UOMConversion", function(currProduct){
+                if (currProduct.SBUXB2BUOMConv && currProduct.unitOfMeasure && currProduct.SBUXB2BPrimaryUOM) {
+                    let conversionString = calculateUOM(currProduct.SBUXB2BPrimaryUOM, currProduct.unitOfMeasure, 1, currProduct.SBUXB2BUOMConv);
+                    if (conversionString) {
+                        return conversionString;
+                    }
+                }
+            });
+
+            Handlebars.registerHelper("inventoryHelper", function(currProduct){
+                let hasInventory = false;
+                if (currProduct && currProduct.inventoryLevel == null && currProduct.SBUXB2BItemDCSourcingS && currProduct.SBUXB2BItemDCSourcingS.length > 0){
+                    let firstInventoryItem = currProduct.SBUXB2BItemDCSourcingS[0];
+                    if (firstInventoryItem.SBUXB2BInventoryQuantity && firstInventoryItem.SBUXB2BLowerThreshold && firstInventoryItem.SBUXB2BUpperThreshold){
+                        if (firstInventoryItem.SBUXB2BInventoryQuantity > firstInventoryItem.SBUXB2BUpperThreshold){
+                            currProduct.inventoryLevel = 'high';
+                        } else if (firstInventoryItem.SBUXB2BInventoryQuantity >= firstInventoryItem.SBUXB2BLowerThreshold && firstInventoryItem.SBUXB2BInventoryQuantity <= firstInventoryItem.SBUXB2BUpperThreshold){
+                            currProduct.inventoryLevel = 'medium';
+                        } else {
+                            currProduct.inventoryLevel = 'low';
+                        }
+                        hasInventory = true;
+                    }
+                }
+                return hasInventory;
+            });
+
+            CCRZ.pubSub.on('view:productItemView:refresh', function (viewRef) {
+                setTimeout(function () {
+                    $(".my-tooltip").tooltip();
+                }, 50);
+            });
+
+            CCRZ.pubSub.on('view:productItemView:refresh', function (viewRef) {
+                Object.getPrototypeOf(viewRef).events['change .entry'] = 'calculateUOM';
+
+                Object.getPrototypeOf(viewRef).calculateUOM = function () {
+                    let currProduct = viewRef.model.attributes;
+                    if (currProduct.SBUXB2BUOMConv && currProduct.unitOfMeasure && currProduct.SBUXB2BPrimaryUOM) {
+                        let conversionString = calculateUOM(currProduct.SBUXB2BPrimaryUOM, currProduct.unitOfMeasure, document.getElementById(currProduct.sfid + '_qtyEntry').value, currProduct.SBUXB2BUOMConv);
+                        if (conversionString) {
+                            document.getElementById('UOMConversionValue_' + currProduct.sfid).textContent = conversionString;
+                        }
+                    }
+                }
+                viewRef.delegateEvents();
+            });
+        }); //end jQuery
+    </script>
+</apex:component>

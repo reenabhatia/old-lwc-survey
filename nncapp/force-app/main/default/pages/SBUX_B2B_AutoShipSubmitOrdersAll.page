@@ -1,0 +1,9 @@
+<apex:page standardController="SBUX_B2B_AutoShipHeader__c"
+  extensions="SBUX_B2B_AutoShipGenerateCtrl"
+  recordSetVar="headerList"
+  action="{!autoShipSubmitAll}"
+>
+    <script>
+        window.history.back();
+    </script>
+</apex:page>

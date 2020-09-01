@@ -1,0 +1,676 @@
+<!--
+ - Created by dgajwani on 4/29/20.
+ -->
+
+<apex:component id="SBUX_B2B_CartItemGroupsRemoveButtons">
+    <script id="SBUX-Shipping-Detail-LLI-Desktop" type="text/template">
+        <div class="cc_shipping_detail_lli">
+            <div class="row cc_message_row">
+                <div class="col-xs-12">
+                    <div class="messagingSection-Error" style="display: none"></div>
+                    <div class="messagingSection-Info" style="display: none"></div>
+                    <div class="messagingSection-Warning" style="display: none"></div>
+                </div>
+            </div>
+
+            <div class="cc_summary_widget pull-right">
+                <div class="checkoutNav cc_checkout_nav">
+                    <input class="btn btn-default btn-sm processBack cc_process_back" type="button"
+                           value="{{pageLabelMap 'Back'}}" alt="{{pageLabelMap 'LLICheckOut_Back'}}"/>
+                    <input class="btn btn-default btn-sm processLLIShippingInfo proceed cc_proceed" type="button"
+                           value="{{pageLabelMap 'LLICheckOut_Proceed'}}" alt="{{pageLabelMap 'LLICheckOut_Proceed'}}"/>
+                </div>
+            </div>
+
+            <div class="row shippingContainer">
+                <div class="col-sm-12">
+                    <!--Buyer Info-->
+                    <div class="summaryWidget panel panel-default cc_panel cc_buyerInfo">
+                        <div class="panel-heading cc_heading">
+                            <h4 class="panel-title cc_title">
+                                <p>{{pageLabelMap 'LLICheckOut_ContactInformation'}}</p>
+                            </h4>
+                        </div>
+                        <div class="panel-body cc_body buyerInfo">
+                            {{#with this.cartData}}
+                            <form id="buyerInfo" class="form buyerInfoForm desktop">
+                                <div class="col-sm-6">
+                                    <label for="buyerFirstName" class="control-label cc_firstname_label">{{pageLabelMap
+                                        'LLICheckOut_FirstName'}}</label>
+                                    <span class="cc_firstname">{{buyerFirstName}}</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="buyerPhone" class="control-label cc_phone_label">{{pageLabelMap
+                                        'LLICheckOut_Phone'}}</label>
+                                    <span class="cc_phone">{{buyerPhone}}</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="buyerLastName" class="control-label cc_lastname_label">{{pageLabelMap
+                                        'LLICheckOut_LastName'}}</label>
+                                    <span class="cc_lastname">{{buyerLastName}}</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="buyerEmail" class="control-label cc_email_label">{{pageLabelMap
+                                        'LLICheckOut_Email'}}</label>
+                                    <span class="cc_email">{{buyerEmail}}</span>
+                                </div>
+                                {{/with}}
+                            </form>
+                        </div>
+                    </div>
+                    <div class="summaryWidget panel panel-default cc_panel">
+                        <div class="panel-heading cc_heading">
+                            <h4 class="panel-title cc_title">
+                                <p>{{pageLabelMap 'LLICheckOut_Addresses'}}</p>
+                            </h4>
+                        </div>
+                        <div class="panel-body cc_body cc_address">
+                            {{#with this.cartData}}
+                            <div class="col-sm-6 shipTo">
+                                <h4 class="panel-title cc_title">
+                                    <p>{{pageLabelMap 'LLICheckOut_ShipAddrHeader'}}</p>
+                                </h4>
+                                <div>
+                                    {{>addressDisplay this.shipToAddressMap}}
+                                </div>
+                            </div>
+                            <div class="col-sm-6 billTo">
+                                <h4 class="panel-title cc_title">
+                                    <p>{{pageLabelMap 'LLICheckOut_BillAddrHeader'}}</p>
+                                </h4>
+                                <div>
+                                    {{>addressDisplay this.billToAddressMap}}
+                                </div>
+                            </div>
+                            {{/with}}
+                        </div>
+                    </div>
+
+                    <!--Cart Item Groups-->
+                    <div class="shipGroups">
+                        <form id="shipForm" class="form cc_ship_form">
+                            {{#each this.cartData.ECartItemGroupsS.models}}
+                            {{#with this.attributes}}
+                            <div class="panel panel-default cc_panel shippingGroupPanel{{sfid}} cc_shipping_group_panel"
+                                 data-id="{{sfid}}">
+                                <div class="panel-heading cc_heading">
+                                    <h4 class="panel-title cc_title shipGoupTitle{{sfid}}">
+                                        <p>{{pageLabelMap groupName}}</p>
+                                    </h4>
+                                </div>
+                                <div class="panel-body cc_body shipGroupBody{{sfid}}">
+                                    <div class="LLIshipOptions cc_lli_shipoptions">
+                                        <!--Column 1-->
+                                        <div class="shipInfo col-sm-6 cc_ship_info">
+                                            {{#if this.ECartItemsS}}
+                                            {{#ifDisplay 'SO.DsplShipOptions'}}
+                                            {{#if this.shippingOptions}}
+                                            {{#ifNotEquals groupName 'Emergency_Order'}}
+                                            <label for="shippingMethod_{{sfid}}"
+                                                   class="control-label cc_shipping_method_label">{{pageLabelMap
+                                                'LLICheckOut_ShippingMethod'}}</label>
+                                            <select disabled="disabled" id="shippingMethod_{{sfid}}" class="shippingOptions
+                                            form-control shippingOptions{{sfid}} cc_shipping_method"
+                                            name="shippingMethod_{{sfid}}">
+                                            {{#each this.shippingOptions}}
+                                            {{#ifEquals ../groupName 'Emergency_Order'}}
+                                            {{#if @first}}
+                                            <option value="">Choose</option>
+                                            {{else}}
+                                            <option value="{{this.uniqueId}}" {{#ifEquals ..
+                                            /shipMethod this.uniqueId}} selected {{/ifEquals}}>
+                                            {{this.provider}} - {{pageLabelMap this.serviceName}}
+                                            </option>
+                                            {{/if}}
+                                            {{else}}
+                                            <option value="{{this.uniqueId}}" {{#ifEquals ..
+                                            /shipMethod this.uniqueId}} selected {{/ifEquals}}>
+                                            {{this.provider}} - {{pageLabelMap this.serviceName}}
+                                            </option>
+                                            {{/ifEquals}}
+                                            {{/each}}
+                                            </select>
+                                            {{/ifNotEquals}}
+                                            {{/if}}
+                                            {{/ifDisplay}}
+                                            <!--Expedited reason code-->
+                                            {{#ifEquals groupName 'Emergency_Order'}}
+                                            <div class="expeditedReasonCode">
+                                                <label class="control-label cc_expedited_reason_label">{{pageLabelMap
+                                                    'Checkout_ExpeditedReasonCode'}}</label>
+                                                <select id="ExpeditedReasonCode_{{sfid}}"
+                                                        class="form-control ExpeditedReasonCode{{sfid}}"
+                                                        name="ExpeditedReasonCode_{{sfid}}">
+                                                    <option {{#ifEquals SBUXB2BExpeditedReasonCode ''}} selected {{/ifEquals}} value="">Choose</option>
+                                                    {{#each this.availableReasonCodes}}
+                                                        <option {{#ifEquals this.value ../this.SBUXB2BExpeditedReasonCode}} selected {{/ifEquals}} value="{{this.value}}">{{this.label}}</option>
+                                                    {{/each}}
+                                                </select>
+                                            </div>
+                                            <div class="expeditedReasonComment">
+                                                <label class="control-label cc_expedited_comment_label">{{pageLabelMap
+                                                    'Checkout_ExpeditedReasonComment'}}</label>
+                                                <textarea maxlength="240" id="ExpeditedReasonComment_{{sfid}}"
+                                                          name="ExpeditedReasonComment_{{sfid}}" rows="3"
+                                                          class="form-control cc_shipping_inst">{{SBUXB2BExpeditedComment}}</textarea>
+                                            </div>
+                                            {{/ifEquals}}
+                                        </div>
+
+                                        <!--Column 2-->
+                                        <div class="shipInfo col-md-6 cc_ship_info">
+                                            <div class="po_number">
+                                                <label for="PONumber_{{sfid}}"
+                                                       class="control-label cc_shipping_inst_label">{{pageLabelMap
+                                                    'Checkout_PONumber'}}</label>
+                                                <input maxlength="35" type="text"
+                                                       placeholder="Optional, You can enter upto 35 characters."
+                                                       id="PONumber_{{sfid}}" name="PONumber_{{sfid}}"
+                                                       class="form-control cc_shipping_inst"
+                                                       value="{{this.SBUXB2BPONumber}}"></textarea>
+                                            </div>
+
+                                            {{#ifDisplay 'SO.ShowReqDate'}}
+                                            {{#if shipTo}}
+                                            <div class="deliveryDateMessages_{{shipTo.sfid}} cc_delivey_date_messages"
+                                                 id="deliveryDateMessages"></div>
+                                            {{#unless ../../this.requestDateData.ApiError}}
+                                            {{#ifEquals groupName 'Emergency_Order'}}
+                                                    <label for="requestedDateStr_{{sfid}}" class="control-label cc_requested_date_label">
+                                                        {{pageLabelMap 'LLICheckout_EORequestedDeliveryDt'}}
+                                                    </label>
+                                                    <span class='glyphicon glyphicon-info-sign my-tooltip' title="{{pageLabelMap 'Checkout_EODeliveryDateToolTip'}}"/>
+                                            {{else}}
+                                                    <label for="requestedDateStr_{{sfid}}" class="control-label cc_requested_date_label">
+                                                        {{pageLabelMap 'LLICheckout_RequestedDeliveryDt'}}
+                                                    </label>
+                                            {{/ifEquals}}
+                                            <div class="input-group date">
+                                                <input readonly="readonly" name="requestedDateStr_{{sfid}}" value="{{requestDate}}"
+                                                       class=" form-control requestedDate requestedDate{{sfid}} cc_requested_date"
+                                                       data-sfid="{{shipTo.sfid}}">
+                                            </div>
+                                            {{/unless}}
+                                            {{/if}}
+                                            {{/ifDisplay}}
+
+                                            {{#ifDisplay 'SO.DsplShipNotes'}}
+                                            <div class="ship_notes cc_ship_notes">
+                                                <label for="shippingInst_{{sfid}}"
+                                                       class="control-label cc_shipping_inst_label">{{pageLabelMap
+                                                    'LLICheckOut_ShippingNotes'}}</label>
+                                                <textarea id="shippingInst_{{sfid}}" name="shippingInst_{{sfid}}"
+                                                          rows="6"
+                                                          class="form-control cc_shipping_inst">{{note}}</textarea>
+                                            </div>
+                                            {{/ifDisplay}}
+                                            {{/if}}
+                                        </div>
+                                    </div>
+                                    <div class="groupItems cc_group_items">
+                                        {{> cartItemsDesktop productList=../../productList}}
+                                    </div>
+                                </div>
+                            </div>
+                            {{/with}}
+                            {{/each}}
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cc_summary_widget pull-right">
+                <div class="checkoutNav cc_checkout_nav">
+                    <input class="btn btn-default btn-sm processBack cc_process_back" type="button"
+                           value="{{pageLabelMap 'Back'}}" alt="{{pageLabelMap 'LLICheckOut_Back'}}"/>
+                    <input class="btn btn-default btn-sm processLLIShippingInfo proceed cc_proceed" type="button"
+                           value="{{pageLabelMap 'LLICheckOut_Proceed'}}" alt="{{pageLabelMap 'LLICheckOut_Proceed'}}"/>
+                </div>
+            </div>
+
+            <div id="modalSec"></div>
+        </div>
+    </script>
+
+
+    <script id="SBUX-CartItemDetail-View-Desktop" type="text/template">
+        <table class="table LLI-CartItems">
+            {{#if this.ECartItemsS}}
+            <tr class="LLI-CartItems-row lliheader">
+                <th width="30%" class="LLI-CartItems-col lliheader itemDetails">&nbsp;</th>
+                <th width="10%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_SKU'}}</th>
+                <th width="20%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_UPC'}}</th>
+                <th width="20%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_Qty'}}</th>
+                <th width="10%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_Price'}}</th>
+                <th width="10%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_Total'}}</th>
+            </tr>
+            {{#each this.ECartItemsS}}
+            {{#ifEquals this.cartItemType 'Major'}}
+            <tr class="LLI-CartItems-row">
+                <td width="30%" class="LLI-CartItems-col itemDetails">
+                    {{#if this.itemLabel}}
+                    <p class="cc_name"><span class="cc_value cc_name">{{productLink this.productR 'cc_product_link' text=this.itemLabel}}</span>
+                    </p>
+                    {{else}}
+                    {{#ifEquals this.pricingType 'external'}}
+                    {{#if this.extName}}
+                    <p class="cc_name"><span class="cc_value cc_ext_name">
+													{{productLink this.productR 'cc_product_link' text=(displayProductName 'Aggregate_Display'  (product-field 'parentName' this.product ../this.productList) this.extName)}}
+												</span></p>
+                    {{else}}
+                    <p class="cc_name"><span class="cc_value cc_agg_name">
+													{{productLink this.productR 'cc_product_link' text=(displayProductName 'Aggregate_Display'  (product-field 'parentName' this.product ../this.productList) (product-field 'sfdcName' this.product ../this.productList)) }}
+												</span></p>
+                    {{/if}}
+                    {{else}}
+                    <p class="cc_name"><span class="cc_value cc_agg_name">
+												{{productLink this.productR 'cc_product_link' text=(displayProductName 'Aggregate_Display'  (product-field 'parentName' this.product ../this.productList) (product-field 'sfdcName' this.product ../this.productList)) }}
+											</span></p>
+                    {{/ifEquals}}
+                    {{/if}}
+                    {{#if this.showIncludedItems}}
+                    <div class="cc_included_items"><a class="included_items cc_included_items"
+                                                      href="#included_items{{this.sfid}}"
+                                                      id="includedItemsLink{{this.sfid}}" data-toggle="modal">{{pageLabelMap
+                            'CartInc_IncludedItems'}}</a>
+                        {{> includedDisplay}}
+                    </div>
+                    {{/if}}
+                </td>
+                <td width="10%" class="LLI-CartItems-col">
+                    {{#ifEquals this.pricingType 'external'}}
+                    {{#if this.extSKU}}
+                    <p>{{this.extSKU}}</p>
+                    {{else}}
+                    <p>{{this.productSKU}}</p>
+                    {{/if}}
+                    {{else}}
+                    <p>{{this.productSKU}}</p>
+                    {{/ifEquals}}
+                </td>
+                <td width="20%" class="LLI-CartItems-col">
+                    <p>{{this.productR.SBUXB2BUPC}}</p>
+                </td>
+                <td width="20%" class="LLI-CartItems-col">
+                    <p>{{unitOfMeasure this.productR this.quantity}}</p>
+                </td>
+                <td width="10%" class="LLI-CartItems-col">
+                    {{#if this.price}}
+                    <p><span>{{{price this.price}}}</span></p>
+                    {{/if}}
+                </td>
+                <td width="10%" class="LLI-CartItems-col">
+                    <p>{{price this.itemTotal}}</p>
+                </td>
+            </tr>
+            {{/ifEquals}}
+            {{/each}}
+            <tr class="LLI-CartItems-row grandTotal">
+                <td width="30%" class="LLI-CartItems-col itemDetails">
+
+                </td>
+                <td width="10%" class="LLI-CartItems-col">
+
+                </td>
+                <td width="20%" class="LLI-CartItems-col">
+
+                </td>
+                <td width="20%" class="LLI-CartItems-col">
+
+                </td>
+                <td width="10%" class="LLI-CartItems-col">
+                    <p>{{pageLabelMap 'CartInc_GrandTotal'}}</p>
+                </td>
+                <td width="10%" class="LLI-CartItems-col">
+                    <p>{{price (groupTotal this.ECartItemsS)}}</p>
+                </td>
+            </tr>
+            {{else}}
+            <p>{{pageLabelMap 'LLICheckOut_EmptyGroup'}} </p>
+            {{/if}}
+        </table>
+    </script>
+
+
+    <script id="SBUX-CartSummaryWidget-Desktop" type="text/template">
+        <div class="panel panel-default cc_panel cc_cart_summary cc_lli_move_items_panel">
+            <div class="panel-heading cart_summary_header cc_heading">
+                <h4 class="panel-title cc_title">
+                    <a role="button" data-toggle="collapse" data-target=".cart_summary_body">{{pageLabelMap
+                        'LLICheckOut_SummaryWidget'}}</a>
+                </h4>
+            </div>
+            <div class="panel-body cc_body cart_summary_body table-responsive">
+                <table class="table cc_summary_table">
+                    {{#each this.cartData.ECartItemGroupsS.models}}
+                    {{#with this.attributes}}
+                    <tr class="group_header cc_group_header">
+                        <th colspan="3"><span class="cc_label">{{pageLabelMap 'LLICheckOut_GroupHeader'}}</span> <span
+                                    class="cc_value">{{this.groupName}}</span></th>
+                    </tr>
+                    {{#each this.ECartItemsS}}
+                    {{#ifEquals this.cartItemType 'Major'}}
+                    <tr class="cart_item cc_cart_item">
+                        <td class="col-xs-1">
+                            <input class="bulkmoveSelect cc_bulk_move_select" data-id="{{this.sfid}}" type="checkbox">
+                        </td>
+                        <td class="col-xs-9 itemHover cc_item_hover">
+                            {{#if this.itemLabel}}
+                            <p class="cc_item_label">{{this.itemLabel}}</p>
+                            {{else}}
+                            {{#ifEquals this.pricingType 'external'}}
+                            {{#if this.extName}}
+                            {{displayProductName 'Aggregate_Display' (product-field 'parentName' this.product
+                            ../this.productList) this.extName }}
+                            {{else}}
+                            {{displayProductName 'Aggregate_Display' (product-field 'parentName' this.product
+                            ../../../this.productList) (product-field 'sfdcName' this.product ../../../this.productList)
+                            }}
+                            {{/if}}
+                            {{else}}
+                            {{displayProductName 'Aggregate_Display' (product-field 'parentName' this.product
+                            ../../../this.productList) (product-field 'sfdcName' this.product ../../../this.productList)
+                            }}
+                            {{/ifEquals}}
+                            {{/if}}
+                            {{#ifEquals this.pricingType 'external'}}
+                            {{#if this.extSKU}}
+                            <p class="cc_sku">{{this.extSKU}}</p>
+                            {{else}}
+                            <p class="cc_sku">{{this.productSKU}}</p>
+                            {{/if}}
+                            {{else}}
+                            <p class="cc_sku">{{this.productSKU}}</p>
+                            {{/ifEquals}}
+                        </td>
+                        <td class="col-xs-3">
+                            <span class="cc_label">{{pageLabelMap 'CartInc_Qty'}}</span> <span class="cc_value">{{this.quantity}}</span>
+                        </td>
+                    </tr>
+                    {{/ifEquals}}
+                    {{/each}}
+                    {{/with}}
+                    {{/each}}
+                </table>
+            </div>
+
+        </div>
+    </script>
+
+    <script>
+        jQuery(function ($) {
+            Handlebars.registerHelper("groupTotal", function (cartItems) {
+                let sum = 0;
+                if (cartItems) {
+                    for (let cartItem in cartItems) {
+                        if (cartItems[cartItem].itemTotal) {
+                            sum += cartItems[cartItem].itemTotal;
+                        }
+                    }
+                }
+                return sum;
+            });
+            Handlebars.registerHelper("unitOfMeasure", function (currProduct, quantity) {
+                let qtyString = quantity + ' ' + currProduct.unitOfMeasure;
+                if (currProduct.SBUXB2BUOMConv && currProduct.unitOfMeasure && currProduct.SBUXB2BPrimaryUOM) {
+                    let conversionString = calculateUOM(currProduct.SBUXB2BPrimaryUOM, currProduct.unitOfMeasure, quantity, currProduct.SBUXB2BUOMConv);
+                    if (conversionString){
+                        qtyString = conversionString;
+                    }
+                }
+                return qtyString;
+            });
+            CCRZ.pubSub.on('view:LLIShippingDetailView:refresh', function (viewRef) {
+                $(".my-tooltip").tooltip();
+                // Emergency Order Cutoff Messaging
+                if (viewRef.model.attributes.cartData.ECartItemGroupsS.models) {
+                    let cartItemGroups = viewRef.model.attributes.cartData.ECartItemGroupsS.models
+                    for (let currCartItemGroup in cartItemGroups) {
+                        if (cartItemGroups[currCartItemGroup].attributes) {
+                            let groupName = cartItemGroups[currCartItemGroup].attributes.groupName
+                            if (groupName && groupName === 'Emergency_Order') {
+                                cartItemGroups[currCartItemGroup].attributes.availableReasonCodes = viewRef.model.attributes.availableReasonCodes;
+                                CCRZ.pubSub.trigger('pageMessage', CCRZ.createPageMessage('SUCCESS', "messagingSection-Info", 'Checkout_EmergencyOrderCutoffMessage'));
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Missing ODS messaging
+                if (viewRef.model.attributes.requestDateData && viewRef.model.attributes.requestDateData.data.shippingAddrLst){
+                    var shippingAddrLst = viewRef.model.attributes.requestDateData.data.shippingAddrLst;
+                    for (let currShipAddressSFID in shippingAddrLst){
+                        let requestDataMap = shippingAddrLst[currShipAddressSFID];
+                        if (requestDataMap.enabledDays && requestDataMap.enabledDays.length == 0){
+                            CCRZ.pubSub.trigger('pageMessage', CCRZ.createPageMessage('ERROR', "messagingSection-Error", 'Checkout_ODSDataMissing'));
+                            $(".processLLIShippingInfo").hide();
+                            break;
+                        }
+                    }
+                }
+
+                if (viewRef.model.attributes.addressList && ((viewRef.model.attributes.cartData.billTo && viewRef.model.attributes.cartData.billToAddressMap == null) || (viewRef.model.attributes.cartData.shipTo && viewRef.model.attributes.cartData.shipToAddressMap == null))) {
+                    let addressList = viewRef.model.attributes.addressList;
+                    if (viewRef.model.attributes.cartData.billTo) {
+                        viewRef.model.attributes.cartData.billToAddressMap = _.find(addressList, {sfid: viewRef.model.attributes.cartData.billTo});
+                    }
+                    if (addressList && viewRef.model.attributes.cartData.shipTo) {
+                        viewRef.model.attributes.cartData.shipToAddressMap = _.find(addressList, {sfid: viewRef.model.attributes.cartData.shipTo});
+                    }
+                    viewRef.render();
+                }
+            });
+            CCRZ.pubSub.once('view:LLIShippingDetailView:refresh', function (viewRef) {
+                Object.getPrototypeOf(viewRef).validateGroups = function () {
+                    $('#shipForm').validate({
+                        ignore: "",
+                        invalidHandler: function (event, validator) {
+                            CCRZ.pubSub.trigger('pageMessage', CCRZ.createPageMessage('ERROR', "messagingSection-Error", 'Please fix the errors below to continue.'));
+                            window.scrollTo(0, 0);
+                        },
+                        errorElement: "em",
+                        errorPlacement: function (error, element) {
+                            error.addClass("help-block");
+
+                            if (element.prop("type") === "checkbox") {
+                                error.insertAfter(element.parent("label"));
+                            } else {
+                                error.insertAfter(element);
+                            }
+                        },
+                        highlight: function (element, errorClass, validClass) {
+                            $(element).parents(".col-sm-4").addClass("has-error").removeClass("has-success");
+                        },
+                        unhighlight: function (element, errorClass, validClass) {
+                            $(element).parents(".col-sm-4").addClass("has-success").removeClass("has-error");
+                        }
+                    });
+                    $("[name^=shippingMethod_]").each(function () {
+                        $(this).rules("add", {
+                            required: true
+                        });
+                    });
+                    $("[name^=ExpeditedReasonCode_]").each(function () {
+                        $(this).rules("add", {
+                            required: true
+                        });
+                    });
+                    $("[name^=ExpeditedReasonComment_]").each(function () {
+                        $(this).rules("add", {
+                            required: true
+                        });
+                    });
+                    $("[name^=requestedDateStr_]").each(function () {
+                        $(this).rules("add", {
+                            required: true
+                        });
+                    });
+
+                    return $('#shipForm').valid();
+                };
+                Object.getPrototypeOf(viewRef).saveShippingDetailsToModel = function (event) {
+                    if (viewRef.validateGroups()) {
+                        // loop through the item groups
+                        if (CCRZ.LLIShippingDetailModel.get('cartData').ECartItemGroupsS && CCRZ.LLIShippingDetailModel.get('cartData').ECartItemGroupsS.models) {
+
+                            jQuery.each(CCRZ.LLIShippingDetailModel.get('cartData').ECartItemGroupsS.models, function (index, group) {
+                                var sfid = group.get("sfid");
+                                // save the shipping detail to the model
+                                if (group.get('ECartItemsS').length != 0 && !_.isUndefined(group.attributes.shipTo)) {
+                                    var shipOptionsData = CCRZ.LLIShippingDetailModel.get('shippingOptionsData');
+                                    if (CCRZ.pagevars.pageConfig.isTrue('SO.DsplShipOptions') && shipOptionsData) {
+                                        var groupShipOptions = shipOptionsData.data.shippingOptions[group.attributes.shipTo.sfid];
+                                        var selectedOption = $(".cc_shipping_group_panel[data-id=" + sfid + "] .shippingOptions").find('option:selected');
+                                        var selectedMethod = selectedOption.val();
+                                        if (!_.isUndefined(selectedMethod)) {
+                                            var shipAmount = _.find(groupShipOptions, {uniqueId: selectedMethod}).price;
+                                            group.set("shipMethod", selectedMethod);
+                                            group.set("shipAmount", shipAmount);
+                                        }
+                                    }
+
+                                    if (CCRZ.pagevars.pageConfig.isTrue('SO.ShowReqDate')) {
+                                        var requestDate = $(".cc_shipping_group_panel[data-id=" + sfid + "] .requestedDate").val();
+                                        if (!requestDate) {
+                                            requestDate = null;
+                                        } else {
+                                            // probably should do some verification here
+                                            // convert to UTC
+                                            // this also fixes the bug found during development, CCRZ-11405
+                                            var dateObj = new Date($(".cc_shipping_group_panel[data-id=" + sfid + "] .requestedDate").datepicker('getDate'));
+                                            requestDate = dateObj.toISOString();
+                                            // Salesforce wants an ISO 8601 without the time
+                                            requestDate = requestDate.substr(0, requestDate.indexOf('T'));
+                                        }
+                                        group.set("requestDate", requestDate);
+                                    }
+
+                                    if (CCRZ.pagevars.pageConfig.isTrue('SO.DsplShipNotes')) {
+                                        var shipNotes = $("#shippingInst_" + sfid).val();
+                                        group.set("note", shipNotes);
+                                    }
+
+                                    // PO Number
+                                    if (CCRZ.pagevars.pageConfig.isTrue('SO.DsplShipNotes')) {
+                                        var shipNotes = $("#shippingInst_" + sfid).val();
+                                        group.set("note", shipNotes);
+                                    }
+
+                                    //PO Number
+                                    if ($("#PONumber_" + sfid).val()) {
+                                        let PONumber = $("#PONumber_" + sfid).val();
+                                        group.set("SBUXB2BPONumber", PONumber);
+                                    }
+
+                                    // Expedited Reason Code and Comments
+                                    if (group.get('groupName') === 'Emergency_Order') {
+                                        var expeditedReasonCode = $("#ExpeditedReasonCode_" + sfid).val();
+                                        group.set("SBUXB2BExpeditedReasonCode", expeditedReasonCode);
+                                        var expeditedComments = $("#ExpeditedReasonComment_" + sfid).val();
+                                        group.set("SBUXB2BExpeditedComment", expeditedComments);
+                                    }
+
+                                } else {
+                                    group.set("shipMethod", null);
+                                    group.set("requestDate", null);
+                                    group.set("shipAmount", null);
+                                    group.set("note", null);
+                                    group.set("expeditedReasonCode", null);
+                                    group.set("expeditedComments", null);
+                                }
+                            });
+                        }
+                    }
+                }
+                Object.getPrototypeOf(viewRef).updateRequestedDate = function () {
+                    var daysArray = CCRZ.pagevars.pageLabels['DaysOfWeek'].split(",");
+                    var monthsArray = CCRZ.pagevars.pageLabels['MonthsOfYear'].split(",");
+                    var dateFormat = CCRZ.pagevars.pageLabels['Date_Format'];
+                    this.datePicker = $.fn.datepicker.dates[CCRZ.pagevars.userLocale] = {
+                        days: daysArray,
+                        daysShort: daysArray,
+                        daysMin: daysArray,
+                        months: monthsArray,
+                        monthsShort: monthsArray,
+                        format: dateFormat
+                    };
+
+                    $(".requestedDate").datepicker({
+                        language: CCRZ.pagevars.userLocale
+                    });
+
+                    if (this.requestDateData && this.requestDateData.get('data')) {
+                        var requestDates = this.requestDateData.get('data').shippingAddrLst;
+                        jQuery.each(requestDates, function (key, data) {
+                            if (data.enabledDays) {
+                                var selectedDate = $('.requestedDate[data-sfid="' + key + '"]').val();
+                                if (selectedDate){
+                                    var dateString = formatDate(new Date(selectedDate));
+                                    if (data.enabledDays.indexOf(dateString) < 0){
+                                        $('.requestedDate[data-sfid="' + key + '"]').val('');
+                                    }
+                                }
+                                $('.requestedDate[data-sfid="' + key + '"]').datepicker('destroy');
+                                var enabledDays = data.enabledDays;
+
+                                function formatDate(d) {
+                                    var day = String(d.getDate())
+                                    //add leading zero if day is is single digit
+                                    if (day.length == 1){
+                                        day = '0' + day
+                                    }
+                                    var month = String((d.getMonth() + 1))
+                                    //add leading zero if month is is single digit
+                                    if (month.length == 1) {
+                                        month = '0' + month
+                                    }
+                                    return month + "/" + day + "/" + d.getFullYear()
+                                }
+
+                                $('.requestedDate[data-sfid="' + key + '"]').datepicker({
+                                    format: 'mm/dd/yyyy',
+                                    startDate: data.startDate,
+                                    endDate: data.endDate,
+                                    beforeShowDay: function (date) {
+                                        if (enabledDays.length == 0){
+                                            return {
+                                                enabled: false
+                                            }
+                                        }
+                                        if (enabledDays.indexOf(formatDate(date)) < 0)
+                                            return {
+                                                enabled: false
+                                            }
+                                        else
+                                            return {
+                                                enabled: true
+                                            }
+                                    },
+                                    autoclose: true
+                                });
+
+                            } else {
+                                $('.requestedDate[data-sfid="' + key + '"]').datepicker('destroy');
+                                $('.requestedDate[data-sfid="' + key + '"]').datepicker({
+                                    format: 'mm/dd/yyyy',
+                                    startDate: data.startDate,
+                                    endDate: data.endDate,
+                                    beforeShowDay: function (date) {
+                                        if (date.getDay() === 6 || date.getDay() === 0){
+                                            return {
+                                                enabled: false
+                                            }
+                                        }
+                                    },
+                                    autoclose: true
+                                });
+                            }
+                        });
+                    }
+                }
+                viewRef.render();
+            });
+        }); //end jQuery
+    </script>
+</apex:component>

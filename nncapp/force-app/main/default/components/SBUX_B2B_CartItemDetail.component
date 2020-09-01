@@ -1,0 +1,209 @@
+<!--
+ - Created by dgajwani on 4/22/20.
+ -->
+
+<apex:component id="SBUX_B2B_CartItemDetail" controller="SBUX_B2B_EO_Ctrl">
+    <script id="SBUX-CartItemDetail-View-Desktop" type="text/template">
+        {{#with this.attributes}}
+        {{#ifEquals this.itemStatus 'Invalid'}}
+            <div class="col-sm-12 invalidCartItem">
+                <div class="messagingSection-{{sfid}}" style="display: none"></div>
+                <div class="row">
+                    <div class="col-md-3 productName">
+                        <div class="cc_label"/>
+                        <div class="cc_value productName">{{productLink product 'cc_prod_link' text=(displayProductName 'Aggregate_Display' displayProduct.sfdcName this.product.sfdcName)}}</div>
+                    </div>
+                    <div class="col-md-2 productSKU">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_SKU'}}</strong></div>
+                        <div class="cc_value productSKU">{{this.product.SKU}}</div>
+                    </div>
+                    <div class="col-md-2 productUPC">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_UPC'}}</strong></div>
+                        <div class="cc_value productUPC">{{this.productR.SBUXB2BUPC}}</div>
+                    </div>
+                    <div class="col-md-3 productQty">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_Qty'}}</strong></div>
+                        <div class="cc_value productQty">{{unitOfMeasure this.productR this.quantity}}</div>
+                    </div>
+                    <div class="col-md-1 productPrice">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_Price'}}</strong></div>
+                        <div class="cc_value productPrice">{{price this.price}}</div>
+                    </div>
+                    <div class="col-md-1 productTotalPrice">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_Total'}}</strong></div>
+                        <div class="cc_value productTotalPrice">{{price this.itemTotal}}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 deleteButton">
+                        <button type="button"
+                                class="btn btn-default btn-sm deleteItem removeItemButton cc_remove_item_button"
+                                data-dismiss="modal" aria-hidden="true" data-id="{{sfid}}">{{pageLabelMap 'Action_Delete'}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {{else}}
+            <div class="col-sm-12 validCartItem">
+                <div class="messagingSection-{{sfid}}" style="display: none"></div>
+                <div class="row">
+                    <div class="col-md-3 productName">
+                        <div class="cc_label"/>
+                        <div class="cc_value productName">{{productLink product 'cc_prod_link' text=(displayProductName 'Aggregate_Display' displayProduct.sfdcName this.product.sfdcName)}}</div>
+                    </div>
+                    <div class="col-md-2 productSKU">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_SKU'}}</strong></div>
+                        <div class="cc_value productSKU">{{this.product.SKU}}</div>
+                    </div>
+                    <div class="col-md-2 productUPC">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_UPC'}}</strong></div>
+                        <div class="cc_value productUPC">{{this.productR.SBUXB2BUPC}}</div>
+                    </div>
+                    <div class="col-md-3 productQty">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_Qty'}}</strong></div>
+                        <div class="cc_qty_control_row">
+                            <div class="col-sm-4">
+                                <input id="entry_{{sfid}}" type="number" min="1" name="qty" value="{{quantity}}"
+                                       class="input-text entry plus_minus form-control input-sm cc_entry"
+                                       maxlength="7"/>
+                            </div>
+                            <div class="col-sm-8">
+                                <span>{{this.productR.unitOfMeasure}}</span>
+                            </div>
+                        </div>
+                        <div class="unitOfMeasure">{{unitOfMeasure this.productR this.quantity}}</div>
+                    </div>
+                    <div class="col-md-1 productPrice">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_Price'}}</strong></div>
+                        <div class="cc_value productPrice">{{price this.price}}</div>
+                    </div>
+                    <div class="col-md-1 productTotalPrice">
+                        <div class="cc_label"><strong>{{pageLabelMap 'CartInc_Total'}}</strong></div>
+                        <div class="cc_value productTotalPrice">{{price this.itemTotal}}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 wishListButton">
+                        {{#unless sptMap}}
+                        <div class="wishButtons cc_wish_buttons"></div>
+                        {{/unless}}
+                    </div>
+                    <div class="col-md-2 deleteButton">
+                        <button type="button"
+                                class="btn btn-default btn-sm deleteItem removeItemButton cc_remove_item_button"
+                                data-dismiss="modal" aria-hidden="true" data-id="{{sfid}}">{{pageLabelMap 'Action_Delete'}}
+                        </button>
+                    </div>
+                    {{#if (allowEO)}}
+                        <div class="col-md-3 EOEligible pull-right">
+                            {{#if this.product.SBUXB2BEOEligible}}
+                            {{#if this.SBUXB2BIsEmergency}}
+                            <span class="cc_label"><input class="eocheckbox" data-id="{{sfid}}" type="checkbox" checked/></span>
+                            {{else}}
+                            <span class="cc_label"><input class="eocheckbox" data-id="{{sfid}}" type="checkbox"/></span>
+                            {{/if}}
+                            <span class="cc_value validEOCheckboxText">{{pageLabelMap 'IsThisEmergencyOrder'}}</span>
+                            {{else}}
+                            <span class="cc_value">{{pageLabelMap 'notEligibleEO'}}</span>
+                            {{/if}}
+                        </div>
+                    {{/if}}
+                </div>
+                <div class="row">
+                    <div class="col-md-8 inventoryMessaging">
+                        {{#if (inventoryHelper this.product)}}
+                            {{#ifEquals this.product.inventoryLevel 'high'}}
+                                <span class="glyphicon glyphicon-ok green" aria-hidden="true"/>
+                                <span>{{pageLabelMap 'CartInc_HighStockMessage'}}</span>
+                            {{/ifEquals}}
+
+                            {{#ifEquals this.product.inventoryLevel 'medium'}}
+                                <span class="glyphicon glyphicon-warning-sign orange" aria-hidden="true"/>
+                                <span>{{pageLabelMap 'CartInc_MediumStockMessage'}}</span>
+                            {{/ifEquals}}
+
+                            {{#ifEquals this.product.inventoryLevel 'low'}}
+                                <span class="glyphicon glyphicon-exclamation-sign red" aria-hidden="true"/>
+                                <span>{{pageLabelMap 'CartInc_LowStockMessage'}}</span>
+                                <span class='glyphicon glyphicon-info-sign my-tooltip'
+                                      title="{{pageLabelMap 'CartInc_LowInventoryToolTip'}}"/>
+                            {{/ifEquals}}
+                        {{else}}
+                            <span class="noInventoryInfo">{{pageLabelMap 'No_Inventory_Info_Available'}}</span>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        {{/ifEquals}}
+        {{/with}}
+    </script>
+
+    <script>
+        jQuery(function ($) {
+            CCRZ.pubSub.once('view:CartDetailView:refresh', function (viewRef) {
+                $(".my-tooltip").tooltip();
+                Object.getPrototypeOf(viewRef).events['click .eocheckbox'] = 'updateCartItemEOStatus';
+
+                Object.getPrototypeOf(viewRef).updateCartItemEOStatus = function (event) {
+                    var objLink = $(event.currentTarget);
+                    var id = objLink.data("id");
+                    var items = this.model.get('ECartItemsS');
+                    var matchingLines = items.where({'sfid': id});
+                    if (matchingLines && matchingLines.length > 0) {
+                        matchingLines[0].set('SBUXB2BIsEmergency', objLink[0].checked);
+                        var cartItemsMap = {};
+                        cartItemsMap[matchingLines[0].id] = matchingLines[0].attributes.SBUXB2BIsEmergency;
+                        CCRZ.subsc.EOActions.updateEOStatuses(JSON.stringify(cartItemsMap), function (response) {
+                            if (response && response.success) {
+                                viewRef.render();
+                            }
+                        });
+                    }
+                };
+                viewRef.delegateEvents();
+            });
+
+            Handlebars.registerHelper("unitOfMeasure", function (currProduct, quantity) {
+                let qtyString = '';
+                if (currProduct.SBUXB2BUOMConv && currProduct.unitOfMeasure && currProduct.SBUXB2BPrimaryUOM) {
+                    qtyString = calculateUOM(currProduct.SBUXB2BPrimaryUOM, currProduct.unitOfMeasure, quantity, currProduct.SBUXB2BUOMConv);
+                }
+                return qtyString;
+            });
+
+            Handlebars.registerHelper("allowEO", function () {
+                let isEOAllowed = false;
+                if (CCRZ.cartDetailModel.attributes.allowEO){
+                    isEOAllowed = CCRZ.cartDetailModel.attributes.allowEO;
+                }
+                return isEOAllowed;
+            });
+
+            Handlebars.registerHelper("inventoryHelper", function(currProduct){
+                let hasInventory = false;
+                if (currProduct && currProduct.inventoryLevel != null){
+                    hasInventory = true;
+                }
+
+                if (currProduct && currProduct.inventoryLevel == null && currProduct.SBUXB2BItemDCSourcingS && currProduct.SBUXB2BItemDCSourcingS.length > 0){
+                    let firstInventoryItem = currProduct.SBUXB2BItemDCSourcingS[0];
+                    if (firstInventoryItem.SBUXB2BInventoryQuantity && firstInventoryItem.SBUXB2BLowerThreshold && firstInventoryItem.SBUXB2BUpperThreshold){
+                        if (firstInventoryItem.SBUXB2BInventoryQuantity > firstInventoryItem.SBUXB2BUpperThreshold){
+                            currProduct.inventoryLevel = 'high';
+                        } else if (firstInventoryItem.SBUXB2BInventoryQuantity >= firstInventoryItem.SBUXB2BLowerThreshold && firstInventoryItem.SBUXB2BInventoryQuantity <= firstInventoryItem.SBUXB2BUpperThreshold){
+                            currProduct.inventoryLevel = 'medium';
+                        } else {
+                            currProduct.inventoryLevel = 'low';
+                        }
+                        hasInventory = true;
+                    }
+                }
+                return hasInventory;
+            });
+
+            CCRZ.pubSub.on('view:CartDetailView:refresh', function (viewRef) {
+                $(".my-tooltip").tooltip();
+            });
+        }); //end jQuery
+    </script>
+</apex:component>

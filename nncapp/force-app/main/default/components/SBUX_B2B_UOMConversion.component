@@ -1,0 +1,28 @@
+<!--
+ - Created by dgajwani on 6/16/20.
+ -->
+
+<apex:component id="SBUX_B2B_UOMConversion">
+    <script type="text/javascript">
+        calculateUOM = function (primaryUOM, orderableUOM, qty, jsonConversionMap) {
+            try {
+                let conversionMap = JSON.parse(jsonConversionMap);
+                for (let conversion in conversionMap) {
+                    if (conversionMap[conversion].fromCode
+                        && conversionMap[conversion].convRt
+                        && conversionMap[conversion].fromCode === primaryUOM
+                        && conversionMap[conversion].toCode === orderableUOM) {
+                        if (qty && !isNaN(qty)) {
+                            let qtyString = qty + ' ' + orderableUOM;
+                            qtyString += '  |  ' + (qty * conversionMap[conversion].convRt) + ' ' + conversionMap[conversion].fromCode;
+                            qtyString += '  (' + conversionMap[conversion].convRt + '/' + conversionMap[conversion].toCode + ')';
+                            return qtyString;
+                        }
+                    }
+                }
+            } catch (e) {
+                // UOM Conversion failed.
+            }
+        }
+    </script>
+</apex:component>

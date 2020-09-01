@@ -1,0 +1,262 @@
+<!--
+ - Created by dgajwani on 5/5/20
+ -->
+
+<apex:component id="SBUX_B2B_OrderItemDetailLLI" controller="SBUX_B2B_OrderViewCtrl">
+    <script id="SBUX-OrderItemsLLI-Desktop" type="text/template">
+        <div class="table-responsive">
+            <table class="table LLI-CartItems">
+                {{#if this.EOrderItemsS}}
+                    <tr class="LLI-CartItems-row lliheader">
+                        <th width="20%" class="LLI-CartItems-col lliheader reviewItemDetails">&nbsp;</th>
+                        <th width="10%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_SKU'}}</th>
+                        <th class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_UPC'}}</th>
+                        <apex:outputPanel layout="none" rendered="{!NOT(isCredit)}" >
+                            <th width="20%"  class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_Qty'}}</th>
+                            {{#if (not isConfirmation)}}
+                                <th width="8%"  class="LLI-CartItems-col lliheader">{{pageLabelMap 'MyOrdersInc_ShippedQty'}}</th>
+                            {{/if}}
+                            <th width="8%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_Price'}}</th>
+                            <th width="8%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_Total'}}</th>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="none" rendered="{!(isCredit)}" >
+                            <th width="8%"  class="LLI-CartItems-col lliheader">{{pageLabelMap 'MyOrdersInc_ShippedQty'}}</th>
+                            <th width="8%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'CartInc_Price'}}</th>
+                            <th width="8%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'MyOrdersInc_ShippedTotal'}}</th>
+                            <th width="5%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'MyOrdersInc_CreditPrevQtyTotal'}}</th>
+                            <th width="10%"  class="LLI-CartItems-col lliheader">{{pageLabelMap 'MyOrdersInc_CreditQty'}}</th>
+                            <th width="10%" class="LLI-CartItems-col lliheader">{{pageLabelMap 'MyOrdersInc_CreditReason'}}</th>
+                        </apex:outputPanel>
+                    </tr>
+                    {{#each this.EOrderItemsS}}
+                        {{#ifEquals this.orderLineType 'Major'}}
+                            <!--custom error messaging section : Line -->
+                            <apex:outputPanel layout="none" rendered="{!isCredit}" >
+                                <tr class="cc_tr_msg"><td class="cc_td_msg" colspan="10">
+                                    <div class="messagingSection-creditReqLine messagingSection-creditReqLine-{{this.sfid}} pull-right" id="messagingSection-creditReqLine-{{this.sfid}}" role="alert" style="display: none;"></div>
+                                </td></tr>
+                            </apex:outputPanel>
+                            <!-- hide top-border on CreditReq screen -->
+                            {{#if {!isCredit}}}
+                            <tr class="LLI-CartItems-row credit-tr">
+                            {{else}}
+                            <tr class="LLI-CartItems-row">
+                            {{/if}}
+                                <td width="20%" class="LLI-CartItems-col itemDetails" >
+                                    {{#if this.itemLabel}}
+                                        <p class="cc_name">
+                                            <span class="cc_value cc_name">{{productLink this 'cc_product_link' text=this.itemLabel}}</span>
+                                        </p>
+                                    {{else}}
+                                        {{#ifEquals this.pricingType 'external'}}
+                                            {{#if this.extName}}
+                                                <p class="cc_name">
+                                                    <span class="cc_value cc_ext_name">
+                                                        {{productLink this 'cc_product_link' text=(displayProductName 'Aggregate_Display'  (product-field 'parentName' this.product ../this.productList) this.extName)}}
+                                                    </span>
+                                                </p>
+                                            {{else}}
+                                                <p class="cc_name">
+                                                    <span class="cc_value cc_agg_name">
+                                                        {{productLink this 'cc_product_link' text=(displayProductName 'Aggregate_Display'  (product-field 'parentName' this.product ../this.productList) (product-field 'sfdcName' this.product ../this.productList)) }}
+                                                    </span>
+                                                </p>
+                                            {{/if}}
+                                        {{else}}
+                                            <p class="cc_name">
+                                                <span class="cc_value cc_agg_name">
+                                                    {{productLink this 'cc_product_link' text=(displayProductName 'Aggregate_Display'  (product-field 'parentName' this.product ../this.productList) (product-field 'sfdcName' this.product ../this.productList)) }}
+                                                </span>
+                                            </p>
+                                        {{/ifEquals}}
+                                    {{/if}}
+                                    {{#if this.showIncludedItems}}
+                                        <div class="cc_included_items">
+                                            <a href="#included_items{{this.sfid}}" class="includedItemsLink" id="includedItemsLink{{this.sfid}}" data-desktop="true" data-toggle="modal" data-id="{{this.sfid}}">{{pageLabelMap 'CartInc_IncludedItems'}}</a>
+                                            {{> includedDisplay}}
+                                        </div>
+                                    {{/if}}
+                                </td>
+                                <td width="10%" class="LLI-CartItems-col">
+                                    {{#ifEquals this.pricingType 'external'}}
+                                        {{#if this.extSKU}}
+                                            <span class="cc_value">{{this.extSKU}}</span>
+                                        {{else}}
+                                            <span class="cc_value">{{this.productSKU}}</span>
+                                        {{/if}}
+                                    {{else}}
+                                        <span class="cc_value">{{this.productSKU}}</span>
+                                    {{/ifEquals}}
+                                </td>
+                                <td class="LLI-CartItems-col">
+                                    <span class="cc_value">{{this.productR.SBUXB2BUPC}}</span>
+                                </td>
+                                <apex:outputPanel layout="none" rendered="{!NOT(isCredit)}" >
+                                    <!-- Non-CreditReq: Show Ordered Qty (w/ UOM conversion) & Shipped Qty  -->
+                                    <td width="20%" class="LLI-CartItems-col">
+                                        <span class="cc_item_qty">{{unitOfMeasure this.productR this.quantity this.unitOfMeasure}}</span>
+                                    </td>
+                                    {{#if (not ../isConfirmation)}}
+                                        <td width="8%" class="LLI-CartItems-col">
+                                            <span class="cc_item_qty">{{calcShippedQty this.productSKU}} {{this.productR.SBUXB2BPrimaryUOM}}</span>
+                                        </td>
+                                    {{/if}}
+                                    <!-- Non-CreditReq Pricing -->
+                                    <td width="8%" class="LLI-CartItems-col">
+                                        <span class="cc_item_price">{{{price this.price}}}</span>
+                                    </td>
+                                    <td width="8%" class="LLI-CartItems-col">
+                                        <span class="cc_item_total">{{{price this.itemTotal}}}</span>
+                                    </td>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!(isCredit)}" >
+                                    <!-- CreditReq: Show ShippedQty Only -->
+                                    <td width="8%" class="LLI-CartItems-col">
+                                        <span class="cc_item_qty"><span id="shippedQty_{{this.sfid}}">{{calcShippedQty this.productSKU}}</span> {{this.productR.SBUXB2BPrimaryUOM}}</span>
+                                    </td>
+                                    <!-- CreditReq Pricing -->
+                                    <td width="8%" class="LLI-CartItems-col">
+                                        <span class="cc_item_price">{{{price (primaryPrice this.price this.itemTotal this.SBUXB2BPrimaryUOMQuantity) }}}</span>
+                                    </td>
+                                    <td width="8%" class="LLI-CartItems-col">
+                                        <span class="cc_item_total">{{{price (shippedTotal this.itemTotal this.SBUXB2BPrimaryUOMQuantity (calcShippedQty this.productSKU)) }}}</span>
+                                    </td>
+                                    <!-- CreditReq input fields -->
+                                    <td width="5%" class="LLI-CartItems-col">
+                                        {{#if this.returnQtyTotal}}
+                                            <span class="cc_quantity">{{this.returnQtyTotal}} {{this.productR.SBUXB2BPrimaryUOM}}</span>
+                                        {{else}}
+                                            <span class="cc_quantity">0 {{this.productR.SBUXB2BPrimaryUOM}}</span>
+                                        {{/if}}
+                                    </td>
+                                    <td width="10%" class="LLI-CartItems-col">
+                                        <span class="cc_quantity">
+                                            <input type="number" id="creditQty_{{this.sfid}}" class="cc_creditQty creditQty_{{this.sfid}}" name="creditQty"> {{this.productR.SBUXB2BPrimaryUOM}}
+                                        </span>
+                                    </td>
+                                    <td width="10%" class="LLI-CartItems-col">
+                                        <select id="creditReason_{{this.sfid}}" class="cc_creditReason creditReason_{{this.sfid}}" name="creditReason">
+                                            <option value="blank"></option>
+                                            {{#each (getReasonList)}}
+                                                <option value='{{this.value}}'>{{this.label}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </td>
+                                </apex:outputPanel>
+                            </tr>
+                        {{/ifEquals}}
+                    {{/each}}
+                    <!-- GrandTotal row (hide if CreditRequest) -->
+                    <apex:outputPanel layout="none" rendered="{!NOT(isCredit)}" >
+                        <tr class="LLI-CartItems-row grandTotal">
+                            <td width="20%" class="LLI-CartItems-col itemDetails"></td>
+                            <td width="10%" class="LLI-CartItems-col"></td>
+                            <td class="LLI-CartItems-col"></td>
+                            <td width="20%" class="LLI-CartItems-col"></td>
+                            {{#if (not isConfirmation)}}
+                                <td width="8%" class="LLI-CartItems-col"></td>
+                            {{/if}}
+                            <td width="10%" class="LLI-CartItems-col">
+                                <p><span><strong>{{pageLabelMap 'CartInc_GrandTotal'}}</strong></span></p>
+                            </td>
+                            <td width="10%"  class="LLI-CartItems-col">
+                                <p>{{price (groupTotal this.EOrderItemsS)}}</p>
+                            </td>
+                        </tr>
+                    </apex:outputPanel>
+                {{else}}
+                    <p class="cc_empty_group">{{pageLabelMap 'LLICheckOut_EmptyGroup'}} </p>
+                {{/if}}
+            </table>
+        </div>
+    </script>
+    <script>
+        //helper to get Grand Total
+        Handlebars.registerHelper("groupTotal", function(orderItems){
+            let sum = 0;
+            if (orderItems){
+                for (let orderItem in orderItems){
+                    if (orderItems[orderItem].itemTotal){
+                        sum += orderItems[orderItem].itemTotal;
+                    }
+                }
+            }
+            return sum;
+        });
+        //helper that displays UOM + Conversion (if available)
+        Handlebars.registerHelper("unitOfMeasure", function(currProduct, quantity, lineUOM){
+            let qtyString = quantity + ' ' + currProduct.unitOfMeasure;
+            if (currProduct.SBUXB2BUOMConv && currProduct.SBUXB2BPrimaryUOM && lineUOM){
+                let conversionString = calculateUOM(currProduct.SBUXB2BPrimaryUOM, lineUOM, quantity, currProduct.SBUXB2BUOMConv);
+                if (conversionString){
+                    qtyString = conversionString;
+                }
+            }
+            return qtyString;
+        });
+        //returns SUM QTY from all shipment lines that match SKU
+        Handlebars.registerHelper("calcShippedQty", function(currSKU){
+            var shippedQtyString = 0;
+            if(!_.isUndefined(CCRZ.orderDetailModel.attributes.orderData.EOrderShipmentsS)){
+                _.each(CCRZ.orderDetailModel.attributes.orderData.EOrderShipmentsS, function(shipment){
+                    _.each(shipment.EOrderShipmentItemsS,function(shipLine){
+                        if(shipLine.SKU == currSKU){
+                            shippedQtyString += shipLine.quantity;
+                        }
+                    });
+                });
+            }
+            return shippedQtyString
+        })
+        //primaryPrice => (this.price this.itemTotal this.SBUXB2BPrimaryUOMQuantity)
+        Handlebars.registerHelper("primaryPrice", function(price, itemTotal, PrimaryUOMQty){
+            if(!_.isUndefined(itemTotal) && !_.isUndefined(PrimaryUOMQty) && PrimaryUOMQty != 0) {
+                return itemTotal / PrimaryUOMQty;
+            }
+            else {
+                return price;
+            }
+        });
+        //shippedTotal => (this.itemTotal this.SBUXB2BPrimaryUOMQuantity calcShippedQty)
+        Handlebars.registerHelper("shippedTotal", function(itemTotal, PrimaryUOMQty, calcShippedQty){
+            if(!_.isUndefined(PrimaryUOMQty) && !_.isUndefined(calcShippedQty) && PrimaryUOMQty != 0) {
+                return (itemTotal / PrimaryUOMQty) * calcShippedQty;
+            }
+            else {
+                return itemTotal;
+            }
+        });
+        //helper to get returnReason picklist
+        Handlebars.registerHelper("getReasonList", function(){
+            let returnList = {!returnReasonCodeString};
+            if (returnList){
+                return returnList;
+            }
+        });
+        //'not' logic helper
+        Handlebars.registerHelper("not", function(obj) {
+            return !obj;
+        });
+    </script>
+
+    <!-- css for creditReq line items -->
+    <style>
+        td, .td {
+            border-top: 0px !important;
+        } tr, .tr{
+            border-top: 1px solid #ddd;
+        } .credit-tr, .cc_tr{
+            border-top: none;
+        } .cc_creditQty {
+            width: 60%;
+            min-width: 50px;
+        } .cc_tr_msg {
+            border-bottom: 0px;
+        } .cc_td_msg {
+            padding-bottom: 0px !important;
+        } .cc_creditReason {
+            font-size: smaller; 
+            padding: 5px;"
+        }
+    </style>
+</apex:component>
